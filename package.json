@@ -1,0 +1,27 @@
+{
+  "name": "ctc-gallery-viewer",
+  "version": "1.0.0",
+  "description": "Images with gallery viewer written in vanilla js, display image in overlay and gallery in side carousel",
+  "main": "ctc_overlay.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bktujwol/ctc-gallery-viewer.git"
+  },
+  "keywords": [
+    "Image",
+    "viewer",
+    "gallery",
+    "viewer",
+    "overlay",
+    "viewer"
+  ],
+  "author": "UjW0L",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bktujwol/ctc-gallery-viewer/issues"
+  },
+  "homepage": "https://github.com/bktujwol/ctc-gallery-viewer#readme"
+}
