@@ -1,3 +1,19 @@
+/*
+	 * 
+	 * 
+	 * 
+	 * CTC Image Viewer
+	 *  images in overlay carousel and gallery written in vanilla js
+	 * https://ujwolbastakoti.wordpress.com/
+	 * MIT license
+	 * 
+	 * 
+	 * 
+	 */
+
+
+"use strict";
+
 class ctcOverlayViewer{
 	
 
@@ -8,15 +24,7 @@ class ctcOverlayViewer{
 		  }
 	
 		  
-	appendStyle(){
-		
-		
-		
-		
-		
-		
-		
-	}	  
+		  
 		 
 		 //function to prrepare overlay 
 		 prepareOverlay(sideGallery){
