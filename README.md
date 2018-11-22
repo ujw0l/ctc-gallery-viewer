@@ -12,16 +12,12 @@ in overlay and gallery in side as carousel
 ## 1.Script tag
 
 
-######<dt> Download files </dt>
+######<dt> Download and include files </dt>
 
-<dd>1. ctc_overlay.js</dd>
+<dd>1. ctc_overlay_min.js Or ctc_overlay.js</dd>
 <dd>2. ctc_overlay_style.css</dd>
 
   
-<dd>Include files</dd>
-
- <dd>1. IncludeCTC Overlay(file) :- ctc_overlay.js</dd>
- <dd>2. Include CTC Overlay stylesheet(file) :-ctc_overlay_style.css</dd>
 
 </dl>
 <dl>
@@ -29,7 +25,7 @@ in overlay and gallery in side as carousel
 ## 2.Node
 <dd>To include CTC overlay in Node, first install with npm</dd>
 
-#### <dd> npm install ctc-image-viewer</dd>
+#### <dd> npm install ctc-gallery-viewer</dd>
 
 
 </dl>
@@ -40,7 +36,7 @@ in overlay and gallery in side as carousel
 #### <dt> Overlay image viewer </dt>
 		onmouseenter="new ctcOverlayViewer(this);"
 	
-  <dd>Note: Paste above code inside wrapper element conataining images.And watch the magic<dd>
+  <dd>Note: Paste above code inside wrapper element conataining images.And watch the magic happens<dd>
 
 </dl>
 
