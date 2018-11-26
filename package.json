@@ -1,6 +1,6 @@
 {
   "name": "ctc-gallery-viewer",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Images with gallery viewer written in vanilla js, display image in overlay and gallery on side in vertical carousel",
   "main": "ctc_overlay.js",
   "scripts": {
@@ -14,7 +14,7 @@
     "image-viewer",
     "gallery-viewer",
     "overlay-viewer"
-  ],
+,"gallery-viewer-responsive"  ],
   "author": "UjW0L",
   "license": "MIT",
   "bugs": {
