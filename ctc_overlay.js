@@ -86,12 +86,14 @@ class ctcOverlayViewer{
 						var thumbImage = new Image(); 	
 						let imgUrl = thumbImage.src = imgSpan.getAttribute("data-gal-unloaded-v");
 			
-						thumbImage.decode().then(()=>{
+						
+						thumbImage.onload = ()=>{
 							
 							   var styleRule = [['display','block'],['opacity','0'],['background','url('+imgUrl+')'],['height',gallerySpanHeight+'px']];
 							   ctcOverlayViewer.loadImageAnim(5,ctcOverlayViewer.applyStyle(styleRule,imgSpan).removeAttribute('data-gal-unloaded-v')); 
 							   
-						}).catch(()=>{
+						}
+						thumbImage.onerror = ()=>{
 										if(errorCount === 0){
 											ctcOverlayV.removeEventListener("mouseover", ctcOverlayViewer.checkForUnloadedImg, true);
 										 	var activeElem = document.getElementsByClassName("ctcActiveGalleryV")
@@ -99,7 +101,7 @@ class ctcOverlayViewer{
 									    }
 										errorCount++;
 									
-										});
+						}
 				
 		    	  });
 		    	  
@@ -307,6 +309,8 @@ class ctcOverlayViewer{
 			
 			return elem;
 	}
+	
+	
 		  
  //function to add or remove active and inactive gallery		 
   addRemoveActiveGallery(param){
@@ -353,10 +357,12 @@ class ctcOverlayViewer{
 				param[1].insertBefore(sideGalleryContainer,  param[1].firstChild);
 				sideGalleryContainer.id="ctcOverlayThumbGalleryContainerV";
 				
-
+				
 				newActiveImages.map( function(img,i=0){
 					
 				var thumbImage = new Image(); 	
+				
+				
 				thumbImage.src = img.src; 
 				
 				ctcOverlayViewer.setElemAttr([['onclick','ctcOverlayViewer.loadOverlayImages('+i+');']],img);
@@ -364,22 +370,22 @@ class ctcOverlayViewer{
 				let imgNumb = i;
 				
 				
+	
+			
 				
-				thumbImage.decode().then(() => {
+				thumbImage.onload = () => {
 					
 					   var styleRule = [['display','block'],['background','url('+img.src+')'],['height',gallerySpanHeight+'px']];
 					   var ElemAttr = [['title',img.getAttribute("title")], ["alt",img.getAttribute("alt")],['onclick',img.getAttribute("onclick")]];
 					   sideGalleryContainer.appendChild(ctcOverlayViewer.setElemAttr(ElemAttr,ctcOverlayViewer.applyStyle(styleRule,document.createElement('span'))));
 		
-				}).catch((error) => {
-			
-					
+				}
+				thumbImage.onerror =  () => {
 					   var ElemAttr = [["data-gal-unloaded-v",img.src],['title',img.getAttribute("title")], ["alt",img.getAttribute("alt")],['onclick',img.getAttribute("onclick")]];
 			
 					   sideGalleryContainer.appendChild(ctcOverlayViewer.setElemAttr(ElemAttr,document.createElement('span')));
 			
 					   errorCount++;  
-					  
 					   if( errorCount === 1){	
 						   
 						    param[0].removeEventListener("mouseover", ctcOverlayViewer.checkForUnloadedImg, true);
@@ -388,10 +394,10 @@ class ctcOverlayViewer{
 						    param[1].removeEventListener("mouseover", ctcOverlayViewer.checkForUnloadedImg, true);
 						    param[1].addEventListener('mouseover', ctcOverlayViewer.checkForUnloadedImg);	
 						}
+
 					   
-					   
-					   
-				});
+				};
+				
 
 			});
 		 
