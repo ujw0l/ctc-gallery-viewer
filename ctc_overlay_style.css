@@ -175,7 +175,8 @@ font-size:35px;
 
 
 .ctcOverlayImageContainerV:hover div.ctcOverlayCountAndCurrentImageV,
-.ctcOverlayImageContainerV:hover div.ctcLoadedImgAltTitleV{
+.ctcOverlayImageContainerV:hover div.ctcLoadedImgAltTitleV,
+.ctcOverlayImageContainerV:hover a#ctcOverlayDownloadButtonV{
 	-webkit-transition: width 0.5s; /* Safari */
      transition: width 0.5;
      transition: 0.25s ease;
@@ -253,7 +254,7 @@ div.ctcOverlayCountAndCurrentImageV{
   
 
 
-/*style for overlay image gallery on left*/
+/*style for overlay image gallery on right*/
 .ctcOverlayThumbGalleryContainerV{
 	width:4.5% !important;
 	height:99.99% !important;
@@ -322,8 +323,24 @@ span.ctcOverlayThumbGalleryActiveV{
 
   
 
+#ctcOverlayDownloadButtonV{
 
+  border: 1px solid rgba(255,255,255,1);
+  width:30px;
+  height:30px;
+  font-size:25px;
+  cursor:pointer;
+  float:left;
+  color:rgba(255,255,255,1);
+  background-color: rgba(0,0,0,0.5);
+  visibility: hidden;
+  text-decoration: none;
+}
 
+#ctcOverlayDownloadButtonV{
+
+  
+}
 
 
 /**
