@@ -14,11 +14,8 @@ in overlay and gallery in side as carousel
 
 ######<dt> Download and include files </dt>
 
-<dd>1. ctc_overlay_min.js Or ctc_overlay.js</dd>
+<dd>1. ctc_overlay.js</dd>
 <dd>2. ctc_overlay_style.css</dd>
-
-  
-
 </dl>
 <dl>
 

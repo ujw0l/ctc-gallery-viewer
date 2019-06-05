@@ -31,7 +31,7 @@
   "description": "Images with gallery viewer written in vanilla js, display image in overlay and gallery on side in vertical carousel",
   "homepage": "https://github.com/bktujwol/ctc-gallery-viewer#readme",
   "keywords": [
-   "image","gallery", "image-viewer",
+    "viewer", "gallery", "image-viewer",
     "gallery-viewer",
     "overlay-viewer",
     "gallery-viewer-responsive"
@@ -46,5 +46,5 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "version": "1.0.5"
+  "version": "1.0.6"
 }
