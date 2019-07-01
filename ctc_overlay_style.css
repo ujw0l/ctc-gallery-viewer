@@ -20,12 +20,6 @@ html {
   -ms-overflow-style: -ms-autohiding-scrollbar;
 }
 
-/* Handle */
-/*
-.ctcOverlayImageContainer ::-webkit-scrollbar-thumb {
-    background:rgba(255,255,255,1); 
-}
-*/
 
 .ctcOverlayV {
   /* Height & width depends on how you want to reveal the overlay (see JS below) */
@@ -73,13 +67,10 @@ html {
   -webkit-transition: 0.2s ease;
   -moz-transition: 0.2s ease;
   top: 0;
-
-
 }
 
 
 /* Position the close button (top right corner) */
-
 .ctcOverlayV .ctcOverlayClosebtnV::before {
   content: "\00d7";
   text-decoration: none;
@@ -102,7 +93,6 @@ html {
 
 
 /* When you mouse over the navigation links, change their color */
-
 .ctcOverlayClosebtnV:hover {
   -webkit-transition: width 0.2s;
   /* Safari */
@@ -119,23 +109,17 @@ html {
   transform: rotate(90deg);
 }
 
-
-
 .ctcOverlayV .ctcGalleryLeftNavV::before {
   content: "\2039";
   color: rgba(255, 255, 255, 1) !important;
   text-align: center;
-
 }
 
 .ctcOverlayV .ctcGalleryRightNavV::before {
   content: "\203A";
   color: rgba(255, 255, 255, 1) !important;
   text-align: center;
-
 }
-
-
 
 .ctcGalleryLeftNavV {
   float: left;
@@ -146,14 +130,11 @@ html {
   -webkit-transition: 0.5s ease;
   -moz-transition: 0.5s ease;
   display: inline-block !important;
-  ;
   cursor: pointer;
   font-size: 120px;
   z-index: 125500;
   opacity: 0;
-
 }
-
 
 .ctcGalleryRightNavV {
   float: right;
@@ -164,17 +145,11 @@ html {
   -webkit-transition: 0.5s ease;
   -moz-transition: 0.5s ease;
   display: inline-block !important;
-  ;
   cursor: pointer;
   font-size: 120px;
   z-index: 125500;
   opacity: 0;
-
-
-
-
 }
-
 
 .ctcOverlayImageContainerV:hover .ctcGalleryLeftNavV,
 .ctcOverlayImageContainerV:hover .ctcGalleryRightNavV {
@@ -202,12 +177,9 @@ html {
   -webkit-transition: 0.25s ease;
   -moz-transition: 0.25s ease;
   visibility: visible;
-
-
 }
 
 .ctcOverlayImageContainerV {
-
   position: absolute;
   text-align: center;
   /* Centered text/links */
@@ -219,10 +191,7 @@ html {
 
 }
 
-
-
 .overlayContentloadingV {
-
   -webkit-transition: width 0.5s;
   /* Safari */
   transition: width 0.5s;
@@ -255,7 +224,6 @@ div.ctcOverlayCountAndCurrentImageV {
 
 
 .ctcLoadedImgAltTitleV {
-
   border: 1px solid rgba(255, 255, 255, 1);
   padding-left: 5px;
   padding-right: 5px;
@@ -272,8 +240,6 @@ div.ctcOverlayCountAndCurrentImageV {
   visibility: hidden;
 }
 
-
-
 /*style for overlay image gallery on right*/
 .ctcOverlayThumbGalleryContainerV {
   width: 4.5% !important;
@@ -282,7 +248,7 @@ div.ctcOverlayCountAndCurrentImageV {
   display: inline-block !important;
   float: left;
   overflow-y: auto !important;
-  backgound-color: rgba(0, 0, 0, 1) !important;
+  background-color: rgba(0, 0, 0, 1) !important;
   -webkit-transition: width 0.5s;
   /* Safari */
   transition: width 0.5s;
@@ -297,7 +263,6 @@ div.ctcOverlayCountAndCurrentImageV {
 
 .ctcOverlayThumbGalleryContainerV span {
   border: 1.5px solid rgba(255, 255, 255, 1);
-
   display: none;
   margin-left: auto;
   margin-right: auto;
@@ -317,8 +282,6 @@ div.ctcOverlayCountAndCurrentImageV {
   -moz-transition: 0.2s ease;
   margin-bottom: 4px;
   display: none;
-
-
 }
 
 .ctcOverlayThumbGalleryContainerV span:hover {
@@ -330,13 +293,11 @@ div.ctcOverlayCountAndCurrentImageV {
   transition: 0.5s ease;
   -webkit-transition: 0.5s ease;
   -moz-transition: 0.5s ease;
-
 }
 
 span.ctcOverlayThumbGalleryActiveV {
   border-radius: 5% 5%;
   background-color: rgba(255, 255, 255, 1) !important;
-
   -webkit-transition: width 0.5s;
   /* Safari */
   transition: width 0.5s;
@@ -348,7 +309,6 @@ span.ctcOverlayThumbGalleryActiveV {
 
 
 #ctcOverlayDownloadButtonV {
-
   border: 1px solid rgba(255, 255, 255, 1);
   width: 30px;
   height: 30px;
@@ -361,9 +321,6 @@ span.ctcOverlayThumbGalleryActiveV {
   text-decoration: none;
 }
 
-#ctcOverlayDownloadButtonV {}
-
-
 /**
 *
 *This section 
@@ -373,28 +330,18 @@ span.ctcOverlayThumbGalleryActiveV {
 /*animation for page load*/
 @-webkit-keyframes animateGalImgSpan {
   from {
-
-
     bottom: 0px;
-
-
   }
 
   to {}
-
-
 }
 
 @keyframes animateGalImgSpan {
   from {
-
     width: 0px;
-
-
   }
 
   to {}
-
 
 }
 
@@ -408,12 +355,9 @@ span.ctcOverlayThumbGalleryActiveV {
     opacity: 0.7;
   }
 
-
   50% {
-
     opacity: 0.8;
     -webkit-transform: scale(1.3);
-
   }
 
   100% {
@@ -432,7 +376,6 @@ span.ctcOverlayThumbGalleryActiveV {
     opacity: 0.7;
   }
 
-
   50% {
     -webkit-transform: scale(1.3);
     -moz-transform: scale(1.3);
@@ -440,7 +383,6 @@ span.ctcOverlayThumbGalleryActiveV {
     -ms-transform: scale(1.3);
     transform: scale(1.3);
     opacity: 0.9;
-
   }
 
   100% {
@@ -459,15 +401,11 @@ span.ctcOverlayThumbGalleryActiveV {
 /*animation for wait while content is being loaded*/
 @-webkit-keyframes animateWaitLoading {
   from {
-
     -webkit-transform: rotate(0deg);
-
   }
 
   to {
     -webkit-transform: rotate(359deg);
-
-
   }
 }
 
@@ -485,8 +423,6 @@ span.ctcOverlayThumbGalleryActiveV {
     -o-transform: rotate(359deg);
     -ms-transform: rotate(359deg);
     transform: rotate(359deg);
-
   }
-
 
 }
