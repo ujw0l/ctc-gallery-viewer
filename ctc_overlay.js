@@ -51,6 +51,8 @@
 				let overlayWidth = window.innerWidth;
 				let overlayHeight = window.innerHeight;
 				let alltImgWidth = 1 < gal.length ? 0.94 : 1;
+				let sideBarWid  = 1 < gal.length ? 0.04 : 0;
+
 
 			  let scrollCss =  document.createElement('style');
 					scrollCss.id = 'ctc-scroll-css';
@@ -62,6 +64,8 @@
 				  overlayDivEl.id = "gallery-overlay";
 				  overlayDivEl.style = `position:fixed;height:${overlayHeight}px;width:${overlayWidth}px;background-color:rgba(0,0,0,.6);z-index:100000;top:0%;left:0%;right:0%;bottom:0%;`;
 				  document.body.insertBefore(overlayDivEl, document.body.firstChild);
+
+		 
 			
 			  let closeBtn= document.createElement('span');
 				  closeBtn.id = "overlay-close-btn";
@@ -70,7 +74,7 @@
 				  closeBtn.style = `cursor:pointer;position:absolute;float:right;right:3px;font-size:${0.016*overlayWidth}px;color:rgba(255,255,255,1);text-shadow:-1px -1px 1px rgba(0,0,0,1);z-index:200000;`;
 				  overlayDivEl.appendChild(closeBtn);
 				  closeBtn.addEventListener('click', () => this.closeOverlay());
-
+		
 			 let imgLoading =  document.createElement('span');
 				  imgLoading.id = 'image-loading-main';
 				  imgLoading.style = `left:${0.992*overlayWidth/2};top:${overlayHeight/2};font-size:${0.016*overlayWidth}px;display:inline-block;position:fixed;color:rgba(255,255,255,1);`;
@@ -111,6 +115,13 @@
 						imgEl.title =  undefined!= img.getAttribute('title') || null != img.getAttribute('title') ? img.getAttribute('title') :'';
 				 });					
 				overlayDivEl.appendChild(imgEl);
+
+			let  imgTitleDiv  = document.createElement("div");
+				 imgTitleDiv.id = "img-title-info";
+				 imgTitleDiv.style =  `z-index:195000;overflow:scroll;position:fixed;text-align:center;height:${0.02*overlayHeight}px;width:${opImgDim.width}px;bottom:1px;color:rgba(255,255,255,1);font-size:${0.015*overlayHeight};overflow:scroll;left:${(sideBarWid*overlayWidth)+(((alltImgWidth*overlayWidth)-opImgDim.width)/2)}px;`;
+				 imgTitleDiv.innerHTML =  undefined!= img.getAttribute('title') || null != img.getAttribute('title') ? img.getAttribute('title') :'';
+				 overlayDivEl.appendChild(imgTitleDiv);
+
 				if( 1< gal.length ){
 					this.createToolbar(overlayDivEl,gal,imgEl,imgNum,param2);
 					this.createSidebar(overlayDivEl,gal,imgEl,imgNum,param2);
@@ -410,14 +421,18 @@
 						default:
 					}
 				},350); 
+
+			let opImgDim = this.getOptimizedImageSize(overlayDiv.offsetWidth, overlayDiv.offsetHeight, clickedImg.width, clickedImg.height,gal.length);
 				clickedImg.addEventListener('load',()=>{
 					clearInterval(loadingInt);
 					imgLoading.style.display = 'none';
-					let opImgDim = this.getOptimizedImageSize(overlayDiv.offsetWidth, overlayDiv.offsetHeight, clickedImg.width, clickedImg.height,gal.length);
 					imgEl.style = `z-index:180000;height:${opImgDim.height}px;width:${opImgDim.width}px;display:inline-block;margin:${((overlayDiv.offsetHeight- opImgDim.height) / 2)}px ${(((0.94 * overlayDiv.offsetWidth) - opImgDim.width) / 2)}px;`;	
 					imgEl.title =  undefined!= gal[imgNum].getAttribute('title') || null != gal[imgNum].getAttribute('title') ? gal[imgNum].getAttribute('title') :'';		
 			});	
-
+			let titleEl = document.querySelector('#img-title-info');
+			titleEl.innerHTML = undefined!= gal[imgNum].getAttribute('title') || null != gal[imgNum].getAttribute('title') ? gal[imgNum].getAttribute('title') :'';
+			titleEl.style.width = opImgDim.width+'px';
+			titleEl.style.left = (0.04*overlayDiv.offsetWidth)+(((0.94*overlayDiv.offsetWidth)-opImgDim.width)/2)+'px';		
 			this.createToolbar(overlayDiv,gal,imgEl,imgNum);
 			this.scrollToPrev(imgNum);
 		}
@@ -463,6 +478,8 @@
 						let sidebarDiv = document.querySelector('#gal-sidebar');
 						let imgCount =  undefined != sidebarDiv ? 2 :1;
 						let alltImgWidth = undefined != sidebarDiv ? 0.94 : 1;
+						let sideBarWid = undefined != sidebarDiv ? 0.04 : 0;
+
 						let imgLoading = overlayDiv.querySelector('#image-loading-main');
 							imgLoading.style.left  = `${0.992*overlayWidth/2}`;
 							imgLoading.style.top = `${overlayHeight/2}`;
@@ -473,9 +490,14 @@
 						let opImgDim = this.getOptimizedImageSize(overlayWidth, overlayHeight, bufferImg.width, bufferImg.height,imgCount);
 						let imgDisplay =  loadedImg.style.display;	
 							loadedImg.style = `height:${opImgDim.height}px;width:${opImgDim.width}px;display:${imgDisplay};margin:${((overlayHeight- opImgDim.height) / 2)}px ${(((alltImgWidth * overlayWidth) - opImgDim.width) / 2)}px;`;	
-								
+						
+						let titleEl = document.querySelector('#img-title-info');	
+							titleEl.style.width = opImgDim.width+'px';
+							titleEl.style.height = (0.02*overlayHeight)+'px';
+							titleEl.style.left = (sideBarWid*overlayWidth)+(((alltImgWidth*overlayWidth)-opImgDim.width)/2)+'px';	
+							titleEl.style.fontSize = 0.015*overlayHeight+'px';	
+							
 						if(undefined != sidebarDiv){						
-								
 									let sidebarImgs = Array.from(sidebarDiv.querySelectorAll('div'));
 										sidebarDiv.style.height = overlayHeight+'px';
 										sidebarDiv.style.width = (0.04*overlayWidth)+'px';
