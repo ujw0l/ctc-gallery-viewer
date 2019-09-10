@@ -607,7 +607,6 @@
 					optimizedImageWidth = imgPercent * screenWidth;
 					optimizedImageHeight = imageActualHeight * (optimizedImageWidth / imageActualWidth);
 				}
-		
 				return {
 					width: optimizedImageWidth,
 					height: optimizedImageHeight
