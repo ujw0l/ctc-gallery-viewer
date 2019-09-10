@@ -16,22 +16,41 @@
 	class ctcOverlayViewer {
 
 			constructor(sel,param2) {
-				Array.from(document.querySelectorAll(sel)).forEach((el,i) => this.prepareGal(el,i,param2));	
+				Array.from(document.querySelectorAll(sel)).forEach((el,i) => this.prepareGal(el,i,param2));
 				window.addEventListener('resize', event => this.adjustApp(event));
-				window.addEventListener('keydown', event => this.onKeyStroke(event));
+				window.addEventListener('keydown', event => this.onKeyStroke(event));	
 			}
-		
+		/*
+		*Prepare gallery for viewing
+		* 
+		*@param gal  All of the images of agllery
+		*@param param2 for future extension
+		*
+		*/
 			prepareGal(gal,param2){
 				let imgs = Array.from(gal.querySelectorAll('img'));	
 				imgs.forEach((img,imgNum)=> {
-					img.addEventListener('click', event=> this.createOverlay(event.target,imgNum,imgs,param2));
+					img.addEventListener('click', event=> {
+						this.createOverlay(event.target,imgNum,imgs,param2);
+					});
 				});
 			}
 		
-			createOverlay(img,imgNum, gal,param2) {
+		/*
+		*Create overlay for viewing
+		* 
+		*@param img Iamges clicked
+		*@param imgNum Number of image in gallery
+		*@param gal Array of images in gallery
+		*@param param2 For future extension
+		*
+		*/
+
+		createOverlay(img,imgNum, gal,param2) {
+
 				let overlayWidth = window.innerWidth;
 				let overlayHeight = window.innerHeight;
-				let alltImgWidth = 1 < gal.length ? 0.95 : 1;
+				let alltImgWidth = 1 < gal.length ? 0.94 : 1;
 
 			  let scrollCss =  document.createElement('style');
 					scrollCss.id = 'ctc-scroll-css';
@@ -44,71 +63,87 @@
 				  overlayDivEl.style = `position:fixed;height:${overlayHeight}px;width:${overlayWidth}px;background-color:rgba(0,0,0,.6);z-index:100000;top:0%;left:0%;right:0%;bottom:0%;`;
 				  document.body.insertBefore(overlayDivEl, document.body.firstChild);
 			
-			  let jsCropCloseBtn = document.createElement('span');
-				  jsCropCloseBtn.id = "overlay-close-btn";
-				  jsCropCloseBtn.title = "Close";
-				  jsCropCloseBtn.innerHTML = "&#10539;";
-				  jsCropCloseBtn.style = `cursor:pointer;position:absolute;float:right;right:3px;font-size:${0.016*overlayWidth}px;color:rgba(255,255,255,1);text-shadow:-1px -1px 1px rgba(0,0,0,1);z-index:200000;`;
-				  overlayDivEl.appendChild(jsCropCloseBtn);
-				  jsCropCloseBtn.addEventListener('click', () => this.closeOverlay());
+			  let closeBtn= document.createElement('span');
+				  closeBtn.id = "overlay-close-btn";
+				  closeBtn.title = "Close";
+				  closeBtn.innerHTML = "&#10539;";
+				  closeBtn.style = `cursor:pointer;position:absolute;float:right;right:3px;font-size:${0.016*overlayWidth}px;color:rgba(255,255,255,1);text-shadow:-1px -1px 1px rgba(0,0,0,1);z-index:200000;`;
+				  overlayDivEl.appendChild(closeBtn);
+				  closeBtn.addEventListener('click', () => this.closeOverlay());
 
 			 let imgLoading =  document.createElement('span');
 				  imgLoading.id = 'image-loading-main';
-				  imgLoading.style = `left:${(alltImgWidth-0.075)*overlayWidth/2};top:${overlayHeight/2};font-size:${0.016*overlayWidth}px;display:inline-block;position:fixed;color:rgba(255,255,255,1);`;
+				  imgLoading.style = `left:${0.992*overlayWidth/2};top:${overlayHeight/2};font-size:${0.016*overlayWidth}px;display:inline-block;position:fixed;color:rgba(255,255,255,1);`;
 				  imgLoading.innerHTML = 'Loading';
 				  overlayDivEl.appendChild(imgLoading);
 				  let loadingInt = setInterval( ()=>{
 					switch(imgLoading.innerHTML){
 						case 'Loading':
-								imgLoading.innerHTML = 'Loading.'
-						  break;
-						case 'Loading.':
-								imgLoading.innerHTML = 'Loading..'
-						  break;
-						case 'Loading..':
-								imgLoading.innerHTML = 'Loading...'
+								imgLoading.innerHTML = 'Loading<b>.</b>'
 						break;
-						case 'Loading...':
-								imgLoading.innerHTML = 'Loading....'
+						case 'Loading<b>.</b>':
+								imgLoading.innerHTML = 'Loading.<b>.</b>'
 						break;
-						case 'Loading....':
-								imgLoading.innerHTML = 'Loading.'
-						break;		
-						default:
+						case 'Loading.<b>.</b>':
+								imgLoading.innerHTML = 'Loading..<b>.</b>'
+						break;
+						case 'Loading..<b>.</b>':
+								imgLoading.innerHTML = 'Loading...<b>.</b>'
+						break;
+						case 'Loading...<b>.</b>':
+								imgLoading.innerHTML = 'Loading<b>.</b>'
+						break;
 					}
 				},350); 
 
 			 let imgEl = document.createElement('img');
 			 let loadedImg = new Image();
-				clearInterval(loadingInt);
-				imgLoading.style.display = 'none';
 				 loadedImg.src = img.src;
+				 imgEl.id = 'loaded-img';	
+				 imgEl.src =  img.src;
 				 imgEl.style.display = 'none';
+			let opImgDim = this.getOptimizedImageSize(overlayWidth, overlayHeight, loadedImg.width, loadedImg.height,gal.length); 
+
 				 loadedImg.addEventListener('load', (event)=>{	
-					let opImgDim = this.getOptimizedImageSize(overlayWidth, overlayHeight, loadedImg.width, loadedImg.height);
-					imgEl.id = 'loaded-img';	 
-					imgEl.style = `height:${opImgDim.height}px;width:${opImgDim.width}px;display:inline-block;margin:${((overlayHeight - opImgDim.height) / 2)}px ${(((alltImgWidth * overlayWidth) - opImgDim.width) / 2)}px;`;
-					imgEl.src = loadedImg.src;
-					imgEl.title =  undefined!= img.getAttribute('title') || null != img.getAttribute('title') ? img.getAttribute('title') :'';	
-					overlayDivEl.appendChild(imgEl);
-					if( 1< gal.length ){
-						this.createToolbar(overlayDivEl,gal,imgEl,imgNum,param2);
-					}
-				});
-				this.createSidebar(overlayDivEl,gal,imgEl,imgNum,param2);
-			}
+						clearInterval(loadingInt);
+						imgLoading.style.display = 'none';
+						imgEl.style = `z-index:180000;height:${opImgDim.height}px;width:${opImgDim.width}px;display:inline-block;margin:${((overlayHeight - opImgDim.height) / 2)}px ${(((alltImgWidth * overlayWidth) - opImgDim.width) / 2)}px;`;
+						imgEl.title =  undefined!= img.getAttribute('title') || null != img.getAttribute('title') ? img.getAttribute('title') :'';
+				 });					
+				overlayDivEl.appendChild(imgEl);
+				if( 1< gal.length ){
+					this.createToolbar(overlayDivEl,gal,imgEl,imgNum,param2);
+					this.createSidebar(overlayDivEl,gal,imgEl,imgNum,param2);
+					imgEl.addEventListener('click', event=>{
+						if( event.offsetX > (event.target.offsetWidth/2) ){
+							document.querySelector('#gal-next-img').click();
+						}else{
+							document.querySelector('#gal-prev-img').click();
+						}
+					});
+				}
+		}
 
-
-			createToolbar(overlayDivEl,gal,imgEl,imgNum,param2){
+		/*
+		*Create toolbar 
+		* 
+		*@param overlayDivEl Overlay div element
+		*@param gal Array of images in gallery
+		*@param imgEl Image element in overlay
+		*@param imgNum Number of image in gallery
+		*@param param2 For future extension
+		*
+		*/
+		createToolbar(overlayDivEl,gal,imgEl,imgNum,param2){
 					let toolbarDiv = overlayDivEl.querySelector('#toolbar-div');
 					let ovWidth = overlayDivEl.offsetWidth;
 					let ovHeight = overlayDivEl.offsetHeight;
-					let btnStyle =  `height:${0.0347*ovHeight}px;width:${0.0345*ovHeight}px;text-align:center;display:inline-block;font-size:${0.028*ovHeight}px;cursor:pointer;color:rgba(255,255,255,1);border-radius:${0.035*ovHeight}px;margin:${0.002*ovHeight}px;background-color:rgba(0,0,0,0.5);border:1px dotted rgba(255,255,255,0.5);`;
+					let btnStyle =  `height:${0.02*ovWidth}px;width:${0.02*ovWidth}px;text-align:center;font-size:${0.016*ovWidth}px;cursor:pointer;color:rgba(255,255,255,1);border-radius:${0.02*ovWidth}px;margin-top:${0.002*ovWidth}px;background-color:rgba(0,0,0,0.8);`;
 
 					if(undefined == toolbarDiv){
 						let toolbarDiv = document.createElement('div');
 						toolbarDiv.id = 'toolbar-div';
-						toolbarDiv.style = `float:right;right:${((0.93*ovWidth)-(6*0.037*ovHeight))/2}px;bottom: 2px;display: inline-block;position: fixed;background-color:rgba(0,0,0,0);border: 1px solid rgba(255,255,255,0);`;
+						toolbarDiv.style = `top:${(ovHeight/2)-(0.066*ovWidth)}px;float:right;right: 0px;display: inline-block;position: fixed;`;
 				
 									let prevBtn =  document.createElement('div');
 										prevBtn.id = 'gal-prev-img';
@@ -203,6 +238,7 @@
 											});
 										nextBtn.addEventListener('mouseenter',event=>{
 												event.target.style.fontWeight = 'bolder';
+												event.target.style.backgroundColor = 'bolder';
 											});
 										nextBtn.addEventListener('mouseleave',event=>{
 												event.target.style.fontWeight = '';
@@ -213,6 +249,14 @@
 
 													
 									}else{
+
+										let imgLoading = overlayDivEl.querySelector('#image-loading-main');
+										if(undefined != imgLoading){
+											overlayDivEl.removeChild(imgLoading);
+										}
+
+										toolbarDiv.removeChild(document.querySelector('#gal-prev-img'));
+										toolbarDiv.removeChild(document.querySelector('#gal-next-img'));
 
 										let prevBtn =  document.createElement('div');
 										prevBtn.id = 'gal-prev-img';
@@ -225,10 +269,11 @@
 										});
 										prevBtn.addEventListener('mouseenter',event=>{
 											event.target.style.fontWeight = 'bolder';
+											
 										});
 										prevBtn.addEventListener('mouseleave',event=>{
 											event.target.style.fontWeight = '';
-											event.target.style.boxShadow = "";
+											event.target.style.boxShadow = "rgba(0,0,0,0.5)";
 										});	
 										toolbarDiv.insertBefore(prevBtn, toolbarDiv.firstChild);
 
@@ -248,21 +293,28 @@
 											event.target.style.fontWeight = '';
 										});	
 										toolbarDiv.appendChild(nextBtn);
-
-									}
-									
+									}			
 			}
 		
-			
 		
-			createSidebar(overlayDiv,gal,imgEl,imgClicked,param2) {
-				if( 1 < gal.length ){
+		/*
+		*Create sidebar of images
+		* 
+		*@param overlayDivEl Overlay div element
+		*@param gal Array of images in gallery
+		*@param imgEl Image element in overlay
+		*@param imgClicked Image cliecked to trigger overlay
+		*@param param2 For future extension
+		*
+		*/
+		
+		createSidebar(overlayDiv,gal,imgEl,imgClicked,param2) {
 							let sidebar = document.createElement('div');
 							sidebar.id = `gal-sidebar`;
-							sidebar.style = `overflow:auto;tex-align:center;display:inline-block;width:${0.04*overlayDiv.offsetWidth}px;height:${overlayDiv.offsetHeight}px;float:left;left:0;background-color:rgba(255,255,255,0.7);`;
+							sidebar.style = `overflow:auto;tex-align:center;display:inline-block;width:${0.04*overlayDiv.offsetWidth}px;height:${overlayDiv.offsetHeight}px;float:left;left:0;background-color:rgba(0,0,0,0.1);z-index:105000;`;
 							overlayDiv.appendChild(sidebar);
 					
-							let sidebarImgStyle = `border-radius:2%;cursor:pointer;margin-bottom:1px;background-color:rgba(255,255,255,1);width:98%;height:${0.98*sidebar.offsetWidth}px;border:1px solid rgba(0,0,0,0.8);background-repeat: no-repeat;background-size:contain;background-position: center;transition:0.3 ease;`;
+							let sidebarImgStyle = ` overflow-x: hidden;border-radius:5%;cursor:pointer;background-color:rgba(255,255,255,1);width:93%;height:${0.93*sidebar.offsetWidth}px;border:1px solid rgba(0,0,0,0.8);background-repeat: no-repeat;background-size:contain;background-position: center;`;
 							gal.map((img,i)=>{
 				
 								let imgPrev = new Image();
@@ -273,13 +325,13 @@
 								sidebarImg.title =  undefined!= img.getAttribute('title') || null != img.getAttribute('title') ? img.getAttribute('title') :'';
 								sidebarImg.style = sidebarImgStyle;
 								sidebarImg.addEventListener('mouseenter', event=>event.target.style.borderRadius='12%');
-								sidebarImg.addEventListener('mouseleave', event=>event.target.style.borderRadius='2%');
+								sidebarImg.addEventListener('mouseleave', event=>event.target.style.borderRadius='5%');
 
 								let rotateDiv = document.createElement('div');
 									rotateDiv.classList.add('img-loading');
 									rotateDiv.style = `text-align:center;color:rgba(0,0,0,1);font-size:${0.6*sidebar.offsetWidth}px;`;
 									rotateDiv.title = 'Loading';
-									rotateDiv.innerHTML = `.`;
+									rotateDiv.innerHTML = `<b>.</b>`;
 									sidebarImg.appendChild(rotateDiv);
 
 								sidebar.appendChild(sidebarImg);
@@ -287,17 +339,17 @@
 										let rotateSpan = sidebarImg.querySelector('.img-loading');
 
 										switch(rotateSpan.innerHTML){
-											case '.':
-												rotateSpan.innerHTML = '..'
+											case '<b>.</b>':
+												rotateSpan.innerHTML = '<b>.</b>.'
 											  break;
-										    case '..':
-													rotateSpan.innerHTML = '...'
+										    case '<b>.</b>.':
+													rotateSpan.innerHTML = '.<b>.</b>.'
 											break;
-											case '...':
-													rotateSpan.innerHTML = '....'
+											case '.<b>.</b>.':
+													rotateSpan.innerHTML = '...<b>.</b>'
 											break;
-											case '....':
-													rotateSpan.innerHTML = '.'
+											case '...<b>.</b>':
+													rotateSpan.innerHTML = '<b>.</b>'
 											break;		
 											default:
 										}
@@ -307,134 +359,159 @@
 									clearInterval(rotateInterval);
 									sidebarImg.innerHTML = '';
 									sidebarImg.style.backgroundImage = `url('${event.target.src}')`;
-									sidebarImg.addEventListener('click', () => this.loadImg(i,gal,overlayDiv,imgEl) );
 									});
+								
+								sidebarImg.addEventListener('click', () => this.loadImg(i,gal,overlayDiv,imgEl) );	
 							});
 
-							this.scrollToPrev(imgClicked);
-							sidebar.style.paddingTop = 1 <= ((overlayDiv.offsetHeight - (gal.length * sidebar.offsetWidth)) / 2) ?  `${((overlayDiv.offsetHeight - (gal.length * sidebar.offsetWidth)) / 2)}px`: `0px`;
-				}
-			}
-
+					this.scrollToPrev(imgClicked);
+					sidebar.style.paddingTop = 1 <= ((overlayDiv.offsetHeight - (gal.length * 0.94*sidebar.offsetWidth)) / 2) ?  `${((overlayDiv.offsetHeight - (gal.length * 0.94*sidebar.offsetWidth)) / 2)}px`: `0px`;
+		}
+		
+		/*
+		*Load image clicked on sidebar
+		* 
+		*@param imgNum Number of image on gallery
+		*@param gal Array of images in gallery
+		*@param overlayDiv Overlay div element
+		*@param imgEl Image element in overlay
+		*
+		*/	
 		loadImg(imgNum,gal,overlayDiv,imgEl){
 				
 				var clickedImg = new Image();
 				clickedImg.src =  gal[imgNum].src;
+				imgEl.src  =  gal[imgNum].src;
 				imgEl.style.display = 'none';
 				
-				let imgLoading = overlayDiv.querySelector('#image-loading-main');
-				imgLoading.style.display = 'inline-block';
+				let imgLoading =  document.createElement('span');
+				imgLoading.id = 'image-loading-main';
+				imgLoading.style = `left:${0.992*overlayDiv.offsetWidth/2};top:${overlayDiv.offsetHeight/2};font-size:${0.016*overlayDiv.offsetWidth}px;display:inline-block;position:fixed;color:rgba(255,255,255,1);`;
+				imgLoading.innerHTML = 'Loading';
+				overlayDiv.appendChild(imgLoading);
 
 				let loadingInt = setInterval( ()=>{
 					switch(imgLoading.innerHTML){
 						case 'Loading':
-								imgLoading.innerHTML = 'Loading.'
+								imgLoading.innerHTML = 'Loading<b>.</b>'
 						  break;
-						case 'Loading.':
-								imgLoading.innerHTML = 'Loading..'
+						case 'Loading<b>.</b>':
+								imgLoading.innerHTML = 'Loading.<b>.</b>'
 						  break;
-						case 'Loading..':
-								imgLoading.innerHTML = 'Loading...'
+						case 'Loading.<b>.</b>':
+								imgLoading.innerHTML = 'Loading..<b>.</b>'
 						break;
-						case 'Loading...':
-								imgLoading.innerHTML = 'Loading....'
+						case 'Loading..<b>.</b>':
+								imgLoading.innerHTML = 'Loading...<b>.</b>'
 						break;
-						case 'Loading....':
-								imgLoading.innerHTML = 'Loading.'
+						case 'Loading...<b>.</b>':
+								imgLoading.innerHTML = 'Loading<b>.</b>'
 						break;		
 						default:
 					}
 				},350); 
-
 				clickedImg.addEventListener('load',()=>{
 					clearInterval(loadingInt);
 					imgLoading.style.display = 'none';
-					let toolbarDiv = overlayDiv.querySelector('#toolbar-div');
-					toolbarDiv.removeChild(document.querySelector('#gal-prev-img'));
-					toolbarDiv.removeChild(document.querySelector('#gal-next-img'));
-					let imgSrc = event.target.src;
-					let opImgDim = this.getOptimizedImageSize(overlayDiv.offsetWidth, overlayDiv.offsetHeight, clickedImg.width, clickedImg.height);
-					
-					imgEl.style = `height:${opImgDim.height}px;width:${opImgDim.width}px;display:inline-block;margin:${((overlayDiv.offsetHeight- opImgDim.height) / 2)}px ${(((0.95 * overlayDiv.offsetWidth) - opImgDim.width) / 2)}px;`;	
-					imgEl.src = imgSrc;
-					imgEl.title =  undefined!= gal[imgNum].getAttribute('title') || null != gal[imgNum].getAttribute('title') ? gal[imgNum].getAttribute('title') :'';	
-
-						this.createToolbar(overlayDiv,gal,imgEl,imgNum)
-						this.scrollToPrev(imgNum);
+					let opImgDim = this.getOptimizedImageSize(overlayDiv.offsetWidth, overlayDiv.offsetHeight, clickedImg.width, clickedImg.height,gal.length);
+					imgEl.style = `z-index:180000;height:${opImgDim.height}px;width:${opImgDim.width}px;display:inline-block;margin:${((overlayDiv.offsetHeight- opImgDim.height) / 2)}px ${(((0.94 * overlayDiv.offsetWidth) - opImgDim.width) / 2)}px;`;	
+					imgEl.title =  undefined!= gal[imgNum].getAttribute('title') || null != gal[imgNum].getAttribute('title') ? gal[imgNum].getAttribute('title') :'';		
 			});	
+
+			this.createToolbar(overlayDiv,gal,imgEl,imgNum);
+			this.scrollToPrev(imgNum);
 		}
 
-
+		/*
+		*Scroll loaded image on side bar
+		* 
+		*@param imgNum Number of image on gallery
+		*
+		*/
 		scrollToPrev(imgNum){
 			 Array.from(document.querySelectorAll('.img-preview')).forEach((prev,i)=>{
 
 				if(i === imgNum){
-					prev.scrollIntoView({ behavior: "smooth",
-										  block: "center"
-										});
-				   prev.style.opacity = '1';
-				   prev.style.border=`1px solid rgba(255, 0, 0, 1)`;					
+					prev.scrollIntoView({block: "center"});
+				   prev.style.border=`1px solid rgba(255, 0, 0, 0.8)`;					
 				   
 				}else{
-					prev.style.opacity  = '0.8';
 					prev.style.border=`1px solid rgba(0,0,0,0.8)`;	
 				}
 			 });
 		}
 
+		/*
+		*Adjust element dimension on resize
+		* 
+		*@param e Resize event
+		*
+		*/
+
 		adjustApp(e) {
 				let overlayWidth = window.innerWidth;
 				let overlayHeight = window.innerHeight;
 				let overlayDiv = document.querySelector('#gallery-overlay');
+				
 			
 				if(undefined != overlayDiv ){
-					overlayDiv.style.height = `${overlayHeight}px`;
-					overlayDiv.style.width = `${overlayWidth}px`;
-					overlayDiv.querySelector('#overlay-close-btn').style.fontSize = `${0.016*overlayWidth}`;
-					let loadedImg = document.querySelector('#loaded-img');
-					let sidebarDiv = document.querySelector('#gal-sidebar');
-					let alltImgWidth = undefined != sidebarDiv ? 0.95 : 1;
-					let imgLoading = overlayDiv.querySelector('#image-loading-main');
-						imgLoading.style.left  = `${(alltImgWidth-0.075)*overlayWidth/2}`;
-						imgLoading.style.top = `${overlayHeight/2}`;
-						imgLoading.style.fontSize =  `${0.016*overlayWidth}px`
-	
-					let bufferImg = new Image();
-						bufferImg.src = loadedImg.src;			
-					let opImgDim = this.getOptimizedImageSize(overlayWidth, overlayHeight, bufferImg.width, bufferImg.height);
-					let imgDisplay =  loadedImg.style.display;	
-						loadedImg.style = `height:${opImgDim.height}px;width:${opImgDim.width}px;display:${imgDisplay};margin:${((overlayHeight- opImgDim.height) / 2)}px ${(((alltImgWidth * overlayWidth) - opImgDim.width) / 2)}px;`;	
-							
-             if(undefined != sidebarDiv){						
-					
-						let sidebarImgs = Array.from(sidebarDiv.querySelectorAll('div'));
-							sidebarDiv.style.paddingTop =  1 <= ((overlayHeight - (sidebarImgs.length * 0.04*overlayWidth)) / 2) ?  `${((overlayHeight - (sidebarImgs.length * 0.04*overlayWidth)) / 2)}px`:'0px';
-							sidebarDiv.style.height = overlayHeight+'px';
-							sidebarDiv.style.width = (0.04*overlayWidth)+'px';
-							sidebarImgs.map(x => {
-								x.style.height = x.offsetWidth + 'px';
-								if(undefined != x.querySelector('.img-loading')){
-									x.querySelector('.img-loading').style.fontSize = `${0.6*sidebarDiv.offsetWidth}px`;
-								}
+						let closeBtn = overlayDiv.querySelector('#overlay-close-btn');
+						overlayDiv.style.height = `${overlayHeight}px`;
+						overlayDiv.style.width = `${overlayWidth}px`;
+						closeBtn .style.fontSize = `${0.016*overlayWidth}`;
+						let loadedImg = document.querySelector('#loaded-img');
+						let sidebarDiv = document.querySelector('#gal-sidebar');
+						let imgCount =  undefined != sidebarDiv ? 2 :1;
+						let alltImgWidth = undefined != sidebarDiv ? 0.94 : 1;
+						let imgLoading = overlayDiv.querySelector('#image-loading-main');
+							imgLoading.style.left  = `${0.992*overlayWidth/2}`;
+							imgLoading.style.top = `${overlayHeight/2}`;
+							imgLoading.style.fontSize =  `${0.016*overlayWidth}px`
+		
+						let bufferImg = new Image();
+							bufferImg.src = loadedImg.src;		
+						let opImgDim = this.getOptimizedImageSize(overlayWidth, overlayHeight, bufferImg.width, bufferImg.height,imgCount);
+						let imgDisplay =  loadedImg.style.display;	
+							loadedImg.style = `height:${opImgDim.height}px;width:${opImgDim.width}px;display:${imgDisplay};margin:${((overlayHeight- opImgDim.height) / 2)}px ${(((alltImgWidth * overlayWidth) - opImgDim.width) / 2)}px;`;	
 								
-							});	
+						if(undefined != sidebarDiv){						
+								
+									let sidebarImgs = Array.from(sidebarDiv.querySelectorAll('div'));
+										sidebarDiv.style.height = overlayHeight+'px';
+										sidebarDiv.style.width = (0.04*overlayWidth)+'px';
+										sidebarImgs.map(x => {
+											x.style.height = (0.93*sidebarDiv.offsetWidth)+ 'px';
+											if(undefined != x.querySelector('.img-loading')){
+												x.querySelector('.img-loading').style.fontSize = `${0.6*sidebarDiv.offsetWidth}px`;
+											}
+										});	
 
-							let toolbarDiv = overlayDiv.querySelector('#toolbar-div');
-							toolbarDiv.style = `left:${((0.93*overlayWidth)-(6*0.037*overlayHeight))/2}px;bottom: 2px;display: inline-block;position: fixed;background-color:rgba(0,0,0,0);border: 1px solid rgba(255,255,255,0);`;
-							
-							Array.from(toolbarDiv.querySelectorAll('div')).map( x=>{
-								x.style.height = `${0.0347*overlayHeight}px`;
-								x.style.width = `${0.0347*overlayHeight}px`;
-								x.style.borderRadius = `${0.035*overlayHeight}px`;
-								x.style.margin= `${0.002*overlayHeight}px`;
-								x.style.fontSize = `${0.028*overlayHeight}px`;
-							});
+										let paddingTop  = (overlayHeight - (sidebarImgs.length * (0.93*sidebarDiv.offsetWidth+2)))/2;
+										sidebarDiv.style.paddingTop = 0 < paddingTop ?  `${paddingTop}px`:'0px';
 
-				}			
-					
+										let toolbarDiv = overlayDiv.querySelector('#toolbar-div');
+										toolbarDiv.style = `top:${(overlayHeight/2)-(0.066*overlayWidth)}px;float:right;right: 0px;display: inline-block;position: fixed;`;
+										
+										Array.from(toolbarDiv.querySelectorAll('div')).map( x=>{
+											x.style.height = `${0.02*overlayWidth}px`;
+											x.style.width = `${0.02*overlayWidth}px`;
+											x.style.borderRadius = `${0.02*overlayWidth}px`;
+											x.style.marginTop= `${0.002*overlayWidth}px`;
+											x.style.fontSize = `${0.016*overlayWidth}`;
+										});
 
-				}
+							}			
+						
+
+					}
 			}
+
+		/*
+		*Destroy overlay viewer
+		* 
+		*Static no parameter
+		*
+		*/
 	
 			closeOverlay() {
 				document.body.removeChild(document.querySelector('#gallery-overlay'));
@@ -442,15 +519,26 @@
 				document.body.style.margin = ''
 				document.querySelector('head').removeChild(document.querySelector('#ctc-scroll-css'));
 			}
+
+		/*
+		*Optimize image dimension for viewing 
+		* 
+		*@param screenWidth Window's inner width
+		*@param screenHeight Window's inner height
+		*@param imageActualWidth Original width of image
+		*@param imageActualHeight Original height of image
+		*@param imgCount Toal count of images in gallery
+		*
+		*/	
 		
-		getOptimizedImageSize(screenWidth, screenHeight, imageActualWidth, imageActualHeight) {
+		getOptimizedImageSize(screenWidth, screenHeight, imageActualWidth, imageActualHeight,imgCount) {
 		
 				var imageScreenHeightRatio = 0,
 					imageScreenWidthRatio = 0,
 					optimizedImageHeight = 0,
 					optimizedImageWidth = 0;
-				var imgPercent = 0.90,
-					marginPercent = 0.1;
+				let imgPercent = undefined != imgCount && 1< imgCount ? 0.93:0.955;
+				let  marginPercent = 1-imgPercent;
 				if ((imageActualWidth >= screenWidth) && (imageActualHeight >= screenHeight)) {
 					if (imageActualWidth >= imageActualHeight) {
 						if (imageActualWidth > imageActualHeight) {
@@ -525,31 +613,37 @@
 					height: optimizedImageHeight
 				};
 			}
-		
 
-onKeyStroke(event){
-		let overlayDiv = document.querySelector('#gallery-overlay');
-			if (undefined != overlayDiv ) {
-						switch(event.code){
+		/*
+		*Handle keystroke event
+		* 
+		*@param e Key stroke event
+		*
+		*/
 
-							case 'ArrowUp' :
-									document.querySelector('#img-zoom-in').click();
-							break;
-							case 'ArrowDown':
-									document.querySelector('#img-zoom-out').click();
-							break;
-							case 'ArrowLeft' :
-									document.querySelector('#gal-prev-img').click();
-							break;
-							case 'ArrowRight':
-									document.querySelector('#gal-next-img').click()
-							break;
-							case 'Escape':
-								overlayDiv.querySelector('#overlay-close-btn').click();
-							break;
+		onKeyStroke(event){
+				let overlayDiv = document.querySelector('#gallery-overlay');
+					if (undefined != overlayDiv ) {
+								switch(event.code){
+
+									case 'ArrowUp' :
+											document.querySelector('#img-zoom-in').click();
+									break;
+									case 'ArrowDown':
+											document.querySelector('#img-zoom-out').click();
+									break;
+									case 'ArrowLeft' :
+											document.querySelector('#gal-prev-img').click();
+									break;
+									case 'ArrowRight':
+											document.querySelector('#gal-next-img').click()
+									break;
+									case 'Escape':
+										overlayDiv.querySelector('#overlay-close-btn').click();
+									break;
+								}
 						}
 				}
-		}
 
 		
 }
