@@ -15,707 +15,635 @@
 	"use strict";
 	class ctcOverlayViewer {
 
-		constructor(elem) {
-			this.addRemoveActiveGallery(this.prepareOverlay(elem));
-			this.onRequiredEventListener();
-		}
-
-		//function to prrepare overlay 
-		prepareOverlay(elem) {
-
-			var overlayDiv = document.getElementById("ctcOverlayV");
-
-			if (overlayDiv === null) {
-
-				let downloadButton = `<a id="ctcOverlayDownloadButtonV" href="javascript:void(0);" onclick= 'ctcOverlayViewer.downloadCurrentImg(this)' title="Download Image" download >&#10515;</a>`;
-				let ctcLoadedImgAltTitle = `<div id="ctcLoadedImgAltTitleV" class="ctcLoadedImgAltTitleV"></div>`;
-				let imageContainer = `<div id="ctcOverlayImageContainerV" class="ctcOverlayImageContainerV">${downloadButton}${ctcLoadedImgAltTitle}</div>`;
-				let ctcOverlayClosebtn = `<span id="ctcOverlayClosebtnV" class="ctcOverlayClosebtnV" title="Close" onclick="ctcOverlayViewer.closeOverlay();" ></span>`;
-				let overlayDiv = document.createElement('div');
-				overlayDiv.id = "ctcOverlayV";
-				overlayDiv.className = "ctcOverlayV";
-				overlayDiv.innerHTML = `${ctcOverlayClosebtn}${imageContainer}`;
-				document.body.insertBefore(overlayDiv, document.body.firstChild);
+			constructor(sel,param2) {
+				Array.from(document.querySelectorAll(sel)).forEach((el,i) => this.prepareGal(el,i,param2));
+				window.addEventListener('resize', event => this.adjustApp(event));
+				window.addEventListener('keydown', event => this.onKeyStroke(event));	
 			}
-
-			return [elem, document.querySelector('#ctcOverlayV')];
-		}
-
-
-
-		static downloadCurrentImg(el) {
-			let loadedImg = new Image();
-			loadedImg.src = el.getAttribute('data-href');
-			let fileName = el.getAttribute('data-href').split('/').reverse()[0];
-			let imgExt = fileName.split('.').reverse()[0];
-			let tempCanv = document.createElement('canvas');
-			let downloadLink = document.createElement('a');
-			let tempCtx = tempCanv.getContext('2d');
-			tempCanv.height = loadedImg.height;
-			tempCanv.width = loadedImg.width;
-			tempCtx.imageSmoothingEnabled = true;
-			tempCtx.imageSmoothingQuality = 'high';
-			tempCtx.drawImage(loadedImg, 0, 0);
-			downloadLink.href = tempCanv.toDataURL("image/" + imgExt);
-			downloadLink.setAttribute('download', fileName);
-			downloadLink.click();
-		}
-
-
-		static checkForUnloadedImg(unloadedGalImg) {
-			var unloadedGalImg = document.querySelectorAll("#ctcOverlayThumbGalleryContainerV span[data-gal-unloaded-v]");
-			if (unloadedGalImg !== null) {
-				var errorCount = 0;
-				let gallerySpanHeight = 0.045 * window.screen.width;
-				ctcOverlayViewer.objectToArray(unloadedGalImg).map((imgSpan) => {
-					var thumbImage = new Image();
-					let imgUrl = thumbImage.src = imgSpan.getAttribute("data-gal-unloaded-v");
-					thumbImage.decode().then(() => {
-						var styleRule = [
-							['display', 'block'],
-							['background', 'url(' + imgUrl + ')'],
-							['height', gallerySpanHeight + 'px']
-						];
-						ctcOverlayViewer.applyStyle(styleRule, imgSpan).removeAttribute('data-gal-unloaded-v');
-					}).catch(() => {
-						if (errorCount === 0) {
-							ctcOverlayV.removeEventListener("mouseover", ctcOverlayViewer.checkForUnloadedImg, true);
-							var activeElem = document.getElementsByClassName("ctcActiveGalleryV")
-							activeElem[0].removeEventListener("mouseover", ctcOverlayViewer.checkForUnloadedImg, true);
-						}
-						errorCount++;
+		/*
+		*Prepare gallery for viewing
+		* 
+		*@param gal  All of the images of agllery
+		*@param param2 for future extension
+		*
+		*/
+			prepareGal(gal,param2){
+				let imgs = Array.from(gal.querySelectorAll('img'));	
+				imgs.forEach((img,imgNum)=> {
+					img.addEventListener('click', event=> {
+						this.createOverlay(event.target,imgNum,imgs,param2);
 					});
 				});
-			} else {
-				ctcOverlayV.removeEventListener("mouseover", ctcOverlayViewer.checkForUnloadedImg, true);
-				document.getElementsByClassName("ctcActiveGalleryV").removeEventListener("mouseover", ctcOverlayViewer.checkForUnloadedImg, true);
 			}
+		
+		/*
+		*Create overlay for viewing
+		* 
+		*@param img Iamges clicked
+		*@param imgNum Number of image in gallery
+		*@param gal Array of images in gallery
+		*@param param2 For future extension
+		*
+		*/
 
-		}
+		createOverlay(img,imgNum, gal,param2) {
 
-		//function to apply style 
-		static applyStyle(rules, elem) {
-			let cssRules = '';
-			rules.map(x => cssRules += x[0] + ":" + x[1] + ";");
-			elem.setAttribute("style", cssRules);
-			return elem;
-		}
+				let overlayWidth = window.innerWidth;
+				let overlayHeight = window.innerHeight;
+				let alltImgWidth = 1 < gal.length ? 0.94 : 1;
 
-		//function to set attribute of elment 
-		static setElemAttr(attr, elem) {
-			attr.map(x => elem.setAttribute(x[0], x[1]));
-			return elem;
-		}
+			  let scrollCss =  document.createElement('style');
+					scrollCss.id = 'ctc-scroll-css';
+					scrollCss.innerHTML = `::-webkit-scrollbar-track {background: rgba(255, 255, 255, 1);} ::-moz-scrollbar-track { background: rgba(255, 255, 255, 1);} #gal-sidebar::-webkit-scrollbar {display: none;} #gal-sidebar::-moz-scrollbar {display: none;}`;
+					document.querySelector('head').appendChild(scrollCss);
+			    	document.body.style.overflow = 'hidden';
+			
+			  let overlayDivEl = document.createElement("div");
+				  overlayDivEl.id = "gallery-overlay";
+				  overlayDivEl.style = `position:fixed;height:${overlayHeight}px;width:${overlayWidth}px;background-color:rgba(0,0,0,.6);z-index:100000;top:0%;left:0%;right:0%;bottom:0%;`;
+				  document.body.insertBefore(overlayDivEl, document.body.firstChild);
+			
+			  let closeBtn= document.createElement('span');
+				  closeBtn.id = "overlay-close-btn";
+				  closeBtn.title = "Close";
+				  closeBtn.innerHTML = "&#10539;";
+				  closeBtn.style = `cursor:pointer;position:absolute;float:right;right:3px;font-size:${0.016*overlayWidth}px;color:rgba(255,255,255,1);text-shadow:-1px -1px 1px rgba(0,0,0,1);z-index:200000;`;
+				  overlayDivEl.appendChild(closeBtn);
+				  closeBtn.addEventListener('click', () => this.closeOverlay());
 
-
-		//function to set attribute of elment 
-		static removeElemAttr(attr, elem) {
-			attr.map(x => elem.removeAttribute(x));
-			return elem;
-		}
-
-		//function to add class
-		static addElemClass(newClass, elem) {
-			newClass.map(x => elem.classList.add(x));
-			return elem;
-		}
-
-		//function remove class
-		static removeStyle(styleRule, elem) {
-			styleRule.map(x => elem.style.x[0] = "");
-			return elem;
-		}
-
-		//function to remove class
-		static removeClass(removeClass, elem) {
-			removeClass.map(x => elem.classList.remove(x));
-			return elem;
-		}
-
-
-		//function remove element
-		static removeElem(removeElem) {
-			removeElem.map(x => x.parentNode.removeChild(x));
-		}
-		//function to object into array
-		static objectToArray(obj) {
-			var newArray = [];
-			Object.keys(obj).map(function (x) {
-				if (Number.isInteger(parseInt(x))) {
-					newArray.push(obj[x]);
-				}
-			});
-			return newArray;
-		}
-
-		//function to create open and close of overlay animation	
-		static openCloseAnimation(animation, elem) {
-			if (animation[0] == 'opacity' && animation[1] > 0) {
-				var opacity = 0;
-				var margin = 50;
-				var dime = 0;
-
-				var intervalId = setInterval(() => {
-					if (opacity >= animation[1] && margin <= 0 && dime >= 100) {
-						clearInterval(intervalId);
-					} else {
-						opacity = opacity + 0.1;
-						margin = margin - 10;
-						dime = dime + 20;
-						if (opacity <= animation[1]) {
-							elem.style.opacity = opacity;
-						}
-						if (margin >= 0) {
-							elem.style.top = margin + '%';
-							elem.style.right = margin + '%';
-							elem.style.bottom = margin + '%';
-							elem.style.left = margin + '%';
-						}
-						if (dime <= 100) {
-							elem.style.height = dime + '%';
-							elem.style.width = dime + '%';
-						}
+			 let imgLoading =  document.createElement('span');
+				  imgLoading.id = 'image-loading-main';
+				  imgLoading.style = `left:${0.992*overlayWidth/2};top:${overlayHeight/2};font-size:${0.016*overlayWidth}px;display:inline-block;position:fixed;color:rgba(255,255,255,1);`;
+				  imgLoading.innerHTML = 'Loading';
+				  overlayDivEl.appendChild(imgLoading);
+				  let loadingInt = setInterval( ()=>{
+					switch(imgLoading.innerHTML){
+						case 'Loading':
+								imgLoading.innerHTML = 'Loading<b>.</b>'
+						break;
+						case 'Loading<b>.</b>':
+								imgLoading.innerHTML = 'Loading.<b>.</b>'
+						break;
+						case 'Loading.<b>.</b>':
+								imgLoading.innerHTML = 'Loading..<b>.</b>'
+						break;
+						case 'Loading..<b>.</b>':
+								imgLoading.innerHTML = 'Loading...<b>.</b>'
+						break;
+						case 'Loading...<b>.</b>':
+								imgLoading.innerHTML = 'Loading<b>.</b>'
+						break;
 					}
-				}, animation[2] / 5, intervalId);
+				},350); 
 
-			} else {
-				var opacity = animation[1];
-				var margin = 0;
-				var dime = 100;
-				var intervalId = setInterval(() => {
-					if (opacity <= animation[1] && margin === 50 && dime === 0) {
-						clearInterval(intervalId);
-					} else {
+			 let imgEl = document.createElement('img');
+			 let loadedImg = new Image();
+				 loadedImg.src = img.src;
+				 imgEl.id = 'loaded-img';	
+				 imgEl.src =  img.src;
+				 imgEl.style.display = 'none';
+			let opImgDim = this.getOptimizedImageSize(overlayWidth, overlayHeight, loadedImg.width, loadedImg.height,gal.length); 
 
-						opacity = opacity - 0.1;
-						margin = margin + 5;
-						dime = dime - 10;
-						if (opacity >= animation[1]) {
-							elem.style.opacity = opacity;
+				 loadedImg.addEventListener('load', (event)=>{	
+						clearInterval(loadingInt);
+						imgLoading.style.display = 'none';
+						imgEl.style = `z-index:180000;height:${opImgDim.height}px;width:${opImgDim.width}px;display:inline-block;margin:${((overlayHeight - opImgDim.height) / 2)}px ${(((alltImgWidth * overlayWidth) - opImgDim.width) / 2)}px;`;
+						imgEl.title =  undefined!= img.getAttribute('title') || null != img.getAttribute('title') ? img.getAttribute('title') :'';
+				 });					
+				overlayDivEl.appendChild(imgEl);
+				if( 1< gal.length ){
+					this.createToolbar(overlayDivEl,gal,imgEl,imgNum,param2);
+					this.createSidebar(overlayDivEl,gal,imgEl,imgNum,param2);
+					imgEl.addEventListener('click', event=>{
+						if( event.offsetX > (event.target.offsetWidth/2) ){
+							document.querySelector('#gal-next-img').click();
+						}else{
+							document.querySelector('#gal-prev-img').click();
 						}
-						elem.style.opacity = animation[1];
-						if (dime <= 0) {
-							elem.style.height = dime + '%';
-							elem.style.width = dime + '%';
-						}
-
-						if (margin >= 50) {
-							elem.style.top = margin + '%';
-							elem.style.right = margin + '%';
-							elem.style.bottom = margin + '%';
-							elem.style.left = margin + '%';
-						}
-					}
-				}, animation[2] / 5, intervalId);
-
-			}
-			return elem;
-		}
-
-
-		//function to add or remove active and inactive gallery		 
-		addRemoveActiveGallery(param) {
-			var newImageCount = 1;
-			if (param[0].classList.contains("ctcActiveGalleryV") === false) {
-				var sideGalleryContainer = document.querySelector("#ctcOverlayThumbGalleryContainerV");
-				if (sideGalleryContainer !== null) {
-					ctcOverlayViewer.removeElem([sideGalleryContainer]);
-				}
-				var activeGallery = document.getElementsByClassName("ctcActiveGalleryV");
-				if (activeGallery.length >= 1) {
-					var attr = ['data-v-img-number', 'onclick'];
-					var allOldImg = ctcOverlayViewer.objectToArray(activeGallery[0].getElementsByTagName('img'));
-					allOldImg.map(x => ctcOverlayViewer.removeElemAttr(attr, x));
-					ctcOverlayViewer.removeClass(["ctcActiveGalleryV"], activeGallery[0]);
-				}
-
-				ctcOverlayViewer.addElemClass(["ctcActiveGalleryV"], param[0]);
-				var newActiveImages = ctcOverlayViewer.objectToArray(param[0].querySelectorAll('img'));
-				newImageCount = newActiveImages.length;
-				let gallerySpanHeight = Math.round(0.045 * window.screen.width);
-				if (newActiveImages.length >= 2) {
-					var errorCount = 0;
-					var sideGalleryContainer = ctcOverlayViewer.addElemClass(["ctcOverlayThumbGalleryContainerV"], document.createElement('div'));
-					sideGalleryContainer.id = "ctcOverlayThumbGalleryContainerV";
-					param[1].insertBefore(sideGalleryContainer, param[1].firstChild);
-
-					newActiveImages.map(function (img, i = 0) {
-						var thumbImage = new Image();
-						thumbImage.src = img.src;
-						img.setAttribute('onclick', 'ctcOverlayViewer.loadOverlayImages(' + i + ');');
-
-						let imgNumb = i;
-						thumbImage.decode().then(() => {
-
-							let imgSpan = document.createElement('span');
-							imgSpan.id = 'ctcGalleryThumbV-' + i;
-							imgSpan.title = img.getAttribute("title");
-							imgSpan.alt = img.getAttribute("alt");
-							imgSpan.setAttribute('onclick', img.getAttribute("onclick"));
-							imgSpan.style.display = 'block';
-							imgSpan.style.background = 'url(' + img.src + ')';
-							imgSpan.style.height = gallerySpanHeight + 'px';
-							imgSpan.style.cursor = 'pointer';
-							sideGalleryContainer.appendChild(imgSpan);
-
-						}).catch((error) => {
-
-							let imgSpan = document.createElement('span');
-							imgSpan.title = img.getAttribute("title");
-							imgSpan.alt = img.getAttribute("alt");
-							imgSpan.setAttribute('onclick', img.getAttribute("onclick"));
-							imgSpan.setAttribute("data-gal-unloaded-v", img.src);
-
-							sideGalleryContainer.appendChild(imgSpan);
-							errorCount++;
-							if (errorCount === 1) {
-								param[0].removeEventListener("mouseover", ctcOverlayViewer.checkForUnloadedImg, true);
-								param[0].addEventListener("mouseover", ctcOverlayViewer.checkForUnloadedImg);
-								param[1].removeEventListener("mouseover", ctcOverlayViewer.checkForUnloadedImg, true);
-								param[1].addEventListener('mouseover', ctcOverlayViewer.checkForUnloadedImg);
-							}
-						});
 					});
-				} else {
-					newActiveImages[0].setAttribute('onclick', 'ctcOverlayViewer.loadOverlayImages(' + 0 + ');');
 				}
-			}
-			return param[0];
-		}
-
-
-		//function to run on close button lcik		  
-		static closeOverlay() {
-			ctcOverlayViewer.applyStyle([
-				['opacity', 0],
-				['width', 0 + 'px']
-			], ctcOverlayViewer.openCloseAnimation(['opacity', 0, 600], ctcOverlayViewer.applyStyle([
-				['height', 0 + 'px']
-			], document.querySelector("#ctcOverlayV"))));
-			document.querySelector("#ctcOverlayImageContainerV").style.backgroundImage = "";
-			document.body.style.overflow = 'auto';
-		}
-
-		//function to get optimized image size
-		static getOptimizedImageSize(screenWidth, screenHeight, imageActualWidth, imageActualHeight) {
-
-			var imageScreenHeightRatio = 0;
-			var imageScreenWidthRatio = 0;
-			var optimizedImageHeight = 0;
-			var optimizedImageWidth = 0;
-
-			if ((imageActualWidth >= screenWidth) && (imageActualHeight >= screenHeight)) {
-				if (imageActualWidth >= imageActualHeight) {
-					if (imageActualWidth > imageActualHeight) {
-
-						imageScreenWidthRatio = imageActualWidth / screenWidth;
-						optimizedImageWidth = (imageActualWidth / imageScreenWidthRatio) - (0.10 * screenWidth);
-						optimizedImageHeight = imageActualHeight * (optimizedImageWidth / imageActualWidth);
-						if (optimizedImageHeight >= (0.9 * screenHeight)) {
-							imageScreenHeightRatio = screenHeight / imageActualHeight;
-							optimizedImageHeight = imageActualHeight * imageScreenHeightRatio - (0.10 * screenHeight);
-							optimizedImageWidth = imageActualWidth * (optimizedImageHeight / imageActualHeight);
-						}
-					} else {
-
-						if (screenWidth > screenHeight) {
-							optimizedImageHeight = (0.9 * screenHeight);
-							optimizedImageWidth = optimizedImageHeight;
-
-						} else if (screenHeight > screenWidth) {
-							optimizedImageWidth = (0.9 * screenWidth);
-							optimizedImageHeight = optimizedImageWidth;
-
-						} else {
-							imageScreenHeightRatio = screenHeight / imageActualHeight;
-							optimizedImageHeight = imageActualHeight * imageScreenHeightRatio - (0.1 * screenHeight);
-							optimizedImageWidth = imageActualWidth * (optimizedImageHeight / imageActualHeight);
-						}
-					}
-
-				} else {
-					imageScreenHeightRatio = imageActualHeight / screenHeight;
-					optimizedImageHeight = (imageActualHeight / imageScreenHeightRatio) - (0.1 * screenHeight);
-					optimizedImageWidth = imageActualWidth * (optimizedImageHeight / imageActualHeight);
-				}
-
-			} else if (imageActualWidth >= screenWidth && imageActualHeight < screenHeight) {
-				imageScreenWidthRatio = screenWidth / imageActualWidth;
-				optimizedImageWidth = imageActualWidth * imageScreenWidthRatio - (0.1 * screenWidth);
-				optimizedImageHeight = imageActualHeight * (optimizedImageWidth / imageActualWidth);
-			} else if (imageActualHeight >= screenHeight && imageActualWidth < screenWidth) {
-				imageScreenHeightRatio = screenHeight / imageActualHeight;
-				optimizedImageHeight = imageActualHeight * imageScreenHeightRatio - (0.1 * screenHeight);
-				optimizedImageWidth = imageActualWidth * (optimizedImageHeight / imageActualHeight);
-				optimizedImageHeight = imageActualHeight * (optimizedImageWidth / imageActualWidth);
-			} else {
-				var avilableImageWidth = 0.9 * screenWidth;
-				var avilableImageHeight = 0.9 * screenHeight;
-				if (imageActualWidth >= avilableImageWidth && imageActualHeight >= avilableImageHeight) {
-					var imageAvilableWidthRatio = avilableWidth / imageActualWidth;
-					imageAvilableHeightRatio = avilableHeight / imageActualHeight;
-					optimizedImageWidth = avilableWidth * imageAvilableWidthRatio;
-					optimizedImageHeight = screenHeight * imageScreenHeightRatio;
-				} else if (imageActualWidth >= avilableImageWidth && imageActualHeight < avilableImageHeight) {
-					var imageAvilableWidthRatio = avilableImageWidth / imageActualWidth;
-					optimizedImageWidth = imageActualWidth * imageAvilableWidthRatio;
-					optimizedImageHeight = imageActualHeight * (optimizedImageWidth / imageActualWidth);
-				} else if (imageActualHeight >= avilableImageHeight && imageActualWidth < avilableImageWidth) {
-					var imageAvilableHeightRatio = avilableImageHeight / imageActualHeight;
-					optimizedImageHeight = imageActualHeight * imageAvilableHeightRatio;
-					optimizedImageWidth = imageActualWidth * (optimizedImageHeight / imageActualHeight);
-				} else {
-					optimizedImageWidth = imageActualWidth;
-					optimizedImageHeight = imageActualHeight;
-				}
-				optimizedImageHeight = imageActualHeight * (optimizedImageWidth / imageActualWidth);
-			}
-
-
-			//at last check it optimized width is still large			
-			if (optimizedImageWidth > (0.9 * screenWidth)) {
-				optimizedImageWidth = 0.9 * screenWidth;
-				optimizedImageHeight = imageActualHeight * (optimizedImageWidth / imageActualWidth);
-
-			}
-
-			return [optimizedImageWidth, optimizedImageHeight];
-
-		}
-
-
-		//function to optimize font size
-		static optFontSize(screenWidth) {
-
-			let optimizedFont = (screenWidth / 1280) * 120;
-
-			if (optimizedFont < 50) {
-
-				return 50;
-
-			} else if (optimizedFont < 70) {
-
-				return 70;
-			} else if (optimizedFont > 120) {
-				return 120;
-			} else {
-
-				return optimizedFont;
-			}
-
 		}
 
 		/*
-		 * function to load overlay image
-		 * 
-		 */
+		*Create toolbar 
+		* 
+		*@param overlayDivEl Overlay div element
+		*@param gal Array of images in gallery
+		*@param imgEl Image element in overlay
+		*@param imgNum Number of image in gallery
+		*@param param2 For future extension
+		*
+		*/
+		createToolbar(overlayDivEl,gal,imgEl,imgNum,param2){
+					let toolbarDiv = overlayDivEl.querySelector('#toolbar-div');
+					let ovWidth = overlayDivEl.offsetWidth;
+					let ovHeight = overlayDivEl.offsetHeight;
+					let btnStyle =  `height:${0.02*ovWidth}px;width:${0.02*ovWidth}px;text-align:center;font-size:${0.016*ovWidth}px;cursor:pointer;color:rgba(255,255,255,1);border-radius:${0.02*ovWidth}px;margin-top:${0.002*ovWidth}px;background-color:rgba(0,0,0,0.8);`;
 
+					if(undefined == toolbarDiv){
+						let toolbarDiv = document.createElement('div');
+						toolbarDiv.id = 'toolbar-div';
+						toolbarDiv.style = `top:${(ovHeight/2)-(0.066*ovWidth)}px;float:right;right: 0px;display: inline-block;position: fixed;`;
+				
+									let prevBtn =  document.createElement('div');
+										prevBtn.id = 'gal-prev-img';
+										prevBtn.style = btnStyle;
+										prevBtn.innerHTML = '&#60;';
+										prevBtn.title = 'Previous image';
+										prevBtn.addEventListener('click',()=>{
+											let imgNumToLoad = 0 <= imgNum-1 ? imgNum-1 : gal.length-1;
+											this.loadImg(imgNumToLoad,gal,overlayDivEl,imgEl);
+										});
+										prevBtn.addEventListener('mouseenter',event=>{
+											event.target.style.fontWeight = 'bolder';
+										});
+										prevBtn.addEventListener('mouseleave',event=>{
+											event.target.style.fontWeight = '';
+										});
+										toolbarDiv.insertBefore(prevBtn, toolbarDiv.firstChild);
 
+									let firstImgBtn =  document.createElement('div');
+										firstImgBtn.id = 'gal-first-img';
+										firstImgBtn.style  = btnStyle+'transform:rotate(-90deg);';
+										firstImgBtn.innerHTML = '&#8892;';
+										firstImgBtn.title = 'Go to first image';
+										firstImgBtn.addEventListener('click',()=>this.loadImg(0,gal,overlayDivEl,imgEl));
+										firstImgBtn.addEventListener('mouseenter',event=>{
+											event.target.style.fontWeight = 'bolder';
+	
+										});
+										firstImgBtn.addEventListener('mouseleave',event=>{
+											event.target.style.fontWeight = '';
+										});
+										toolbarDiv.appendChild(firstImgBtn);
+										
+									let zoomInBtn =  document.createElement('div');
+										zoomInBtn.id = 'img-zoom-in';
+										zoomInBtn.style  = btnStyle;
+										zoomInBtn.innerHTML = '&#43;';
+										zoomInBtn.title = 'Zoom in';
+										zoomInBtn.addEventListener('click',()=>imgEl.style.transform = 0 === imgEl.style.transform.length? `scale(1.2)` : `scale(${parseFloat(imgEl.style.transform.replace('scale(','').replace(')',''))+0.2})`);	
+										zoomInBtn.addEventListener('mouseenter',event=>{
+											event.target.style.fontWeight = 'bolder';
+	
+										});
+										zoomInBtn.addEventListener('mouseleave',event=>{
+											event.target.style.fontWeight = '';
+										});
+										toolbarDiv.appendChild(zoomInBtn);	
+										
+									let zoomOutBtn =  document.createElement('div');
+										zoomOutBtn.id ='img-zoom-out';
+										zoomOutBtn.style  = btnStyle;
+										zoomOutBtn.innerHTML = '&#8722;';
+										zoomOutBtn.title = 'Zoom out';
+										zoomOutBtn.addEventListener('click',()=>{
+											let zoom = parseFloat(imgEl.style.transform.replace('scale(','').replace(')',''))-0.2;
+											let scale = 0 > zoom ? 0.1 : zoom;
+											imgEl.style.transform =  0 === imgEl.style.transform.length ? `scale(0.8)` : `scale(${scale})`
+										});
+										zoomOutBtn.addEventListener('mouseenter',event=>{
+											event.target.style.fontWeight = 'bolder';
+	
+										});
+										zoomOutBtn.addEventListener('mouseleave',event=>{
+											event.target.style.fontWeight = '';
+										});
+										toolbarDiv.appendChild(zoomOutBtn);
 
-		static loadOverlayImages(currentImageNumber) {
+									let lastImgBtn =  document.createElement('div');
+										lastImgBtn.id = 'gal-last-img';
+										lastImgBtn.style  = btnStyle+'transform:rotate(90deg);';
+										lastImgBtn.innerHTML = '&#8892;';
+										lastImgBtn.title = 'Go to last image';
+										lastImgBtn.addEventListener('click',()=>this.loadImg((gal.length-1),gal,overlayDivEl,imgEl));
+										lastImgBtn.addEventListener('mouseenter',event=>{
+											event.target.style.fontWeight = 'bolder';
+										});
+										lastImgBtn.addEventListener('mouseleave',event=>{
+											event.target.style.fontWeight = '';
+										});
+										toolbarDiv.appendChild(lastImgBtn);
+										
+									
+									
+									let nextBtn =  document.createElement('div');
+										nextBtn.id = 'gal-next-img';
+										nextBtn.style  = btnStyle;
+										nextBtn.innerHTML = '&#62;';
+										nextBtn.title = 'Next image';
+										nextBtn.addEventListener('click',()=>{
+												let imgNumToLoad = gal.length-1 >= imgNum+1 ? imgNum+1 : 0;
+												this.loadImg(imgNumToLoad,gal,overlayDivEl,imgEl);
+											});
+										nextBtn.addEventListener('mouseenter',event=>{
+												event.target.style.fontWeight = 'bolder';
+												event.target.style.backgroundColor = 'bolder';
+											});
+										nextBtn.addEventListener('mouseleave',event=>{
+												event.target.style.fontWeight = '';
+											});	
+										toolbarDiv.appendChild(nextBtn);
+										overlayDivEl.appendChild(toolbarDiv);										
+										
 
-			document.body.style.overflow = 'hidden';
-			var image = new Image();
-			const imageNumberToLoad = parseInt(currentImageNumber);
+													
+									}else{
 
-			const overlayImg = document.querySelectorAll('img[onclick="ctcOverlayViewer.loadOverlayImages(' + currentImageNumber + ');"]');
-			const overlay = document.querySelector("#ctcOverlayV");
-			const closeBtn = document.querySelector("#ctcOverlayClosebtnV");
-			const sideImgGallery = document.querySelector("#ctcOverlayThumbGalleryContainerV");
-			const overlayImgContainer = document.querySelector("#ctcOverlayImageContainerV");
+										let imgLoading = overlayDivEl.querySelector('#image-loading-main');
+										if(undefined != imgLoading){
+											overlayDivEl.removeChild(imgLoading);
+										}
 
+										toolbarDiv.removeChild(document.querySelector('#gal-prev-img'));
+										toolbarDiv.removeChild(document.querySelector('#gal-next-img'));
 
-			let prevImgNum = overlayImgContainer.getAttribute("data-v-overlay-img");
-			let prevGalImg = document.querySelectorAll('span[onclick="ctcOverlayViewer.loadOverlayImages(' + prevImgNum + ');"]');
-			let screenWidth = window.screen.width;
-			let screenHeight = window.screen.height;
-			let windowWidth = window.innerWidth;
-			let windowHeight = window.innerHeight;
-			let activeGallery = document.querySelectorAll(".ctcActiveGalleryV");
-			let totalImageCount = activeGallery[0].getElementsByTagName('img').length;
+										let prevBtn =  document.createElement('div');
+										prevBtn.id = 'gal-prev-img';
+										prevBtn.style = btnStyle;
+										prevBtn.innerHTML = '&#60;';
+										prevBtn.title = 'Previous image';
+										prevBtn.addEventListener('click',()=>{
+											let imgNumToLoad = 0 <= imgNum-1 ? imgNum-1 : gal.length-1;
+											this.loadImg(imgNumToLoad,gal,overlayDivEl,imgEl);
+										});
+										prevBtn.addEventListener('mouseenter',event=>{
+											event.target.style.fontWeight = 'bolder';
+											
+										});
+										prevBtn.addEventListener('mouseleave',event=>{
+											event.target.style.fontWeight = '';
+											event.target.style.boxShadow = "rgba(0,0,0,0.5)";
+										});	
+										toolbarDiv.insertBefore(prevBtn, toolbarDiv.firstChild);
 
-			if (imageNumberToLoad < 0 || totalImageCount < imageNumberToLoad + 1) {
-				return;
-			} else {
-
-				var imageToLoad = image.src = overlayImg[0].src;
+										let nextBtn =  document.createElement('div');
+										nextBtn.id = 'gal-next-img';
+										nextBtn.style  = btnStyle;
+										nextBtn.innerHTML = '&#62;';
+										nextBtn.title = 'Next image';
+										nextBtn.addEventListener('click',()=>{
+											let imgNumToLoad = gal.length-1 >= imgNum+1 ? imgNum+1 : 0;
+											this.loadImg(imgNumToLoad,gal,overlayDivEl,imgEl);
+										});
+										nextBtn.addEventListener('mouseenter',event=>{
+											event.target.style.fontWeight = 'bolder';
+										});
+										nextBtn.addEventListener('mouseleave',event=>{
+											event.target.style.fontWeight = '';
+										});	
+										toolbarDiv.appendChild(nextBtn);
+									}			
 			}
+		
+		
+		/*
+		*Create sidebar of images
+		* 
+		*@param overlayDivEl Overlay div element
+		*@param gal Array of images in gallery
+		*@param imgEl Image element in overlay
+		*@param imgClicked Image cliecked to trigger overlay
+		*@param param2 For future extension
+		*
+		*/
+		
+		createSidebar(overlayDiv,gal,imgEl,imgClicked,param2) {
+							let sidebar = document.createElement('div');
+							sidebar.id = `gal-sidebar`;
+							sidebar.style = `overflow:auto;tex-align:center;display:inline-block;width:${0.04*overlayDiv.offsetWidth}px;height:${overlayDiv.offsetHeight}px;float:left;left:0;background-color:rgba(0,0,0,0.1);z-index:105000;`;
+							overlayDiv.appendChild(sidebar);
+					
+							let sidebarImgStyle = ` overflow-x: hidden;border-radius:5%;cursor:pointer;background-color:rgba(255,255,255,1);width:93%;height:${0.93*sidebar.offsetWidth}px;border:1px solid rgba(0,0,0,0.8);background-repeat: no-repeat;background-size:contain;background-position: center;`;
+							gal.map((img,i)=>{
+				
+								let imgPrev = new Image();
+								imgPrev.src  = img.src; 
 
-			//special case when window is not in full screen
-			//while window is resized little bit
+								let sidebarImg  = document.createElement('div');
+								sidebarImg.classList.add('img-preview');
+								sidebarImg.title =  undefined!= img.getAttribute('title') || null != img.getAttribute('title') ? img.getAttribute('title') :'';
+								sidebarImg.style = sidebarImgStyle;
+								sidebarImg.addEventListener('mouseenter', event=>event.target.style.borderRadius='12%');
+								sidebarImg.addEventListener('mouseleave', event=>event.target.style.borderRadius='5%');
 
-			if (windowWidth !== screenWidth || screenHeight !== windowHeight) {
-				screenWidth = windowWidth;
-				screenHeight = windowHeight;
+								let rotateDiv = document.createElement('div');
+									rotateDiv.classList.add('img-loading');
+									rotateDiv.style = `text-align:center;color:rgba(0,0,0,1);font-size:${0.6*sidebar.offsetWidth}px;`;
+									rotateDiv.title = 'Loading';
+									rotateDiv.innerHTML = `<b>.</b>`;
+									sidebarImg.appendChild(rotateDiv);
 
-			}
+								sidebar.appendChild(sidebarImg);
+								let rotateInterval = setInterval( ()=>{
+										let rotateSpan = sidebarImg.querySelector('.img-loading');
 
-			var imgDim = ctcOverlayViewer.getOptimizedImageSize(screenWidth, screenHeight, image.width, image.height);
-			let optimizedImageWidth = Math.round(imgDim[0]);
-			let optimizedImageHeight = Math.round(imgDim[1]);
+										switch(rotateSpan.innerHTML){
+											case '<b>.</b>':
+												rotateSpan.innerHTML = '<b>.</b>.'
+											  break;
+										    case '<b>.</b>.':
+													rotateSpan.innerHTML = '.<b>.</b>.'
+											break;
+											case '.<b>.</b>.':
+													rotateSpan.innerHTML = '...<b>.</b>'
+											break;
+											case '...<b>.</b>':
+													rotateSpan.innerHTML = '<b>.</b>'
+											break;		
+											default:
+										}
+								},250); 
 
+								imgPrev.addEventListener('load',(event)=>{
+									clearInterval(rotateInterval);
+									sidebarImg.innerHTML = '';
+									sidebarImg.style.backgroundImage = `url('${event.target.src}')`;
+									});
+								
+								sidebarImg.addEventListener('click', () => this.loadImg(i,gal,overlayDiv,imgEl) );	
+							});
 
-			if (overlay.offsetHeight === 0) {
+					this.scrollToPrev(imgClicked);
+					sidebar.style.paddingTop = 1 <= ((overlayDiv.offsetHeight - (gal.length * 0.94*sidebar.offsetWidth)) / 2) ?  `${((overlayDiv.offsetHeight - (gal.length * 0.94*sidebar.offsetWidth)) / 2)}px`: `0px`;
+		}
+		
+		/*
+		*Load image clicked on sidebar
+		* 
+		*@param imgNum Number of image on gallery
+		*@param gal Array of images in gallery
+		*@param overlayDiv Overlay div element
+		*@param imgEl Image element in overlay
+		*
+		*/	
+		loadImg(imgNum,gal,overlayDiv,imgEl){
+				
+				var clickedImg = new Image();
+				clickedImg.src =  gal[imgNum].src;
+				imgEl.src  =  gal[imgNum].src;
+				imgEl.style.display = 'none';
+				
+				let imgLoading =  document.createElement('span');
+				imgLoading.id = 'image-loading-main';
+				imgLoading.style = `left:${0.992*overlayDiv.offsetWidth/2};top:${overlayDiv.offsetHeight/2};font-size:${0.016*overlayDiv.offsetWidth}px;display:inline-block;position:fixed;color:rgba(255,255,255,1);`;
+				imgLoading.innerHTML = 'Loading';
+				overlayDiv.appendChild(imgLoading);
 
-				ctcOverlayViewer.openCloseAnimation(['opacity', 1, 500], ctcOverlayViewer.applyStyle([
-					['opacity', 1],
-					['top', '0'],
-					['left', '0'],
-					['right', '0'],
-					['bottom', '0']
-				], overlay));
-			} else {
-				ctcOverlayViewer.applyStyle([
-					['opacity', 1],
-					['top', '0'],
-					['left', '0'],
-					['right', '0'],
-					['bottom', '0'],
-					['height', '100%'],
-					['width', '100%']
-				], overlay);
-			}
-
-
-			//optimize font for screen resolution
-			let optimizedFontSize = ctcOverlayViewer.optFontSize(screenWidth);
-
-			document.body.style.overflow = 'hidden';
-
-			ctcOverlayViewer.addElemClass(['overlayContentloadingV'], closeBtn);
-
-			image.addEventListener('load', function () {
-				let containerMarginTop = Math.round(screenHeight - optimizedImageHeight) / 2;
-				let navIconMargin = Math.round((optimizedImageHeight - (1.6 * optimizedFontSize)) / 2);
-				let closeMarginTop = Math.round(containerMarginTop - (closeBtn.offsetHeight / 1.2));
-				let galleryRightNav = document.querySelector("#ctcGalleryRightNavV");
-				let galleryLeftNav = document.querySelector("#ctcGalleryLeftNavV");
-
-
-				if (galleryRightNav !== null) {
-					ctcOverlayViewer.removeElem([galleryRightNav]);
-
-				}
-
-				if (galleryLeftNav !== null) {
-					ctcOverlayViewer.removeElem([galleryLeftNav]);
-
-				}
-
-				//script to load image and margin of close button 
-				ctcOverlayViewer.removeClass(['overlayContentloadingV'], closeBtn);
-
-				if (prevGalImg[0] !== undefined) {
-					ctcOverlayViewer.removeClass(['ctcOverlayThumbGalleryActiveV'], prevGalImg[0]);
-				}
-
-				if (totalImageCount >= 2) {
-					var gallerySpanHeight = 0.045 * screenWidth;
-
-					ctcOverlayViewer.objectToArray(sideImgGallery.children).map(x => x.style.height = gallerySpanHeight + "px");
-
-					let imageId = overlayImg[0].getAttribute("onclick").replace("ctcOverlayViewer.loadOverlayImages(", '').replace(");", '');
-					var activeGallerySpan = sideImgGallery.querySelector("#ctcGalleryThumbV-" + imageId);
-
-
-					if (activeGallerySpan !== null) {
-
-
-						if (activeGallerySpan.getAttribute("data-gal-unloaded-v") !== null) {
-
-							var elemStyle = [
-								["display", "block"],
-								["background", 'url("' + imageToLoad + '")'],
-								["height", gallerySpanHeight + "px"],
-								["width", gallerySpanHeight + "px"]
-							];
-							ctcOverlayViewer.addElemClass(['ctcOverlayThumbGalleryActiveV'],
-								ctcOverlayViewer.removeElemAttr(["data-gal-unloaded-v"],
-									ctcOverlayViewer.applyStyle(elemStyle, activeGallerySpan[0])));
-
-							if ((totalImageCount * (gallerySpanHeight + 4)) < screenHeight) {
-								sideImgGallery.firstChild.style.marginTop = (screenHeight - (totalImageCount * (gallerySpanHeight + 9))) / 2 + "px";
-							}
-
-						} else {
-							activeGallerySpan.classList.add('ctcOverlayThumbGalleryActiveV');
-							if ((totalImageCount * (gallerySpanHeight + 4)) < screenHeight) {
-								sideImgGallery.firstChild.style.marginTop = (screenHeight - (totalImageCount * (gallerySpanHeight + 9))) / 2 + "px";
-							}
-
-						}
-
-
-						activeGallerySpan.scrollIntoView({
-							behavior: "smooth",
-							block: "center"
-						});
-
+				let loadingInt = setInterval( ()=>{
+					switch(imgLoading.innerHTML){
+						case 'Loading':
+								imgLoading.innerHTML = 'Loading<b>.</b>'
+						  break;
+						case 'Loading<b>.</b>':
+								imgLoading.innerHTML = 'Loading.<b>.</b>'
+						  break;
+						case 'Loading.<b>.</b>':
+								imgLoading.innerHTML = 'Loading..<b>.</b>'
+						break;
+						case 'Loading..<b>.</b>':
+								imgLoading.innerHTML = 'Loading...<b>.</b>'
+						break;
+						case 'Loading...<b>.</b>':
+								imgLoading.innerHTML = 'Loading<b>.</b>'
+						break;		
+						default:
 					}
+				},350); 
+				clickedImg.addEventListener('load',()=>{
+					clearInterval(loadingInt);
+					imgLoading.style.display = 'none';
+					let opImgDim = this.getOptimizedImageSize(overlayDiv.offsetWidth, overlayDiv.offsetHeight, clickedImg.width, clickedImg.height,gal.length);
+					imgEl.style = `z-index:180000;height:${opImgDim.height}px;width:${opImgDim.width}px;display:inline-block;margin:${((overlayDiv.offsetHeight- opImgDim.height) / 2)}px ${(((0.94 * overlayDiv.offsetWidth) - opImgDim.width) / 2)}px;`;	
+					imgEl.title =  undefined!= gal[imgNum].getAttribute('title') || null != gal[imgNum].getAttribute('title') ? gal[imgNum].getAttribute('title') :'';		
+			});	
 
-					let countAndCurrent = document.querySelector("#ctcOverlayCountAndCurrentImageV");
-					if (countAndCurrent === null) {
-						countAndCurrent = document.createElement('div');
-						countAndCurrent.id = "ctcOverlayCountAndCurrentImageV";
-						countAndCurrent.className = "ctcOverlayCountAndCurrentImageV";
-						overlayImgContainer.appendChild(countAndCurrent);
-					}
-
-					overlayImgContainer.setAttribute('data-v-overlay-img', imageNumberToLoad);
-					let containerMarginLeft = Math.round((0.955 * screenWidth) - optimizedImageWidth) / 2;
-					let style = [
-						["background-image", 'url(' + imageToLoad + ')'],
-						['margin-left', containerMarginLeft + "px"],
-						["margin-top", containerMarginTop + "px"],
-						["width", Math.round(optimizedImageWidth) + "px"],
-						["height", Math.round(optimizedImageHeight) + "px"]
-					];
-
-					ctcOverlayViewer.applyStyle(style, overlayImgContainer);
-					if (optimizedFontSize < 51) {
-						ctcOverlayViewer.applyStyle([
-							["margin-right", containerMarginLeft + "px"],
-							['margin-top', closeMarginTop + "px"],
-							['font-size', '30px']
-						], closeBtn);
-						document.querySelector('#ctcOverlayDownloadButtonV').fontSize = '30px';
-					} else {
-						ctcOverlayViewer.applyStyle([
-							["margin-right", containerMarginLeft + "px"],
-							['margin-top', closeMarginTop + "px"]
-						], closeBtn)
-
-					}
-
-					//first add image counr and current images
-					if (imageNumberToLoad - 1 >= 0 && imageNumberToLoad + 1 < totalImageCount) {
-
-						overlayImgContainer.appendChild(ctcOverlayViewer.addElemClass(['ctcGalleryRightNavV'],
-							ctcOverlayViewer.setElemAttr([
-									['title', 'Next Image'],
-									["onclick", "ctcOverlayViewer.loadOverlayImages(" + (imageNumberToLoad + 1) + ");"],
-									['id', 'ctcGalleryRightNavV']
-								],
-								ctcOverlayViewer.applyStyle([
-									['margin-top', navIconMargin + "px"],
-									['font-size', optimizedFontSize + 'px'],
-									['margin-right', document.querySelector('#ctcOverlayDownloadButtonV').offsetWidth + 'px']
-								], document.createElement('span')))));
-
-						overlayImgContainer.appendChild(ctcOverlayViewer.addElemClass(['ctcGalleryLeftNavV'],
-							ctcOverlayViewer.setElemAttr([
-									['title', 'Previous Image'],
-									["onclick", "ctcOverlayViewer.loadOverlayImages(" + (imageNumberToLoad - 1) + ");"],
-									['id', 'ctcGalleryLeftNavV']
-								],
-								ctcOverlayViewer.applyStyle([
-									['margin-top', navIconMargin + "px"],
-									['font-size', optimizedFontSize + 'px']
-								], document.createElement('span')))));
-
-						countAndCurrent.innerHTML = (imageNumberToLoad + 1) + ' of ' + totalImageCount;
-					} else if (imageNumberToLoad - 1 < 0 && imageNumberToLoad + 1 < totalImageCount) {
-
-						//add element left and right nav
-						overlayImgContainer.appendChild(ctcOverlayViewer.addElemClass(['ctcGalleryRightNavV'],
-							ctcOverlayViewer.setElemAttr([
-									['title', 'Next Image'],
-									["onclick", "ctcOverlayViewer.loadOverlayImages(" + (imageNumberToLoad + 1) + ");"],
-									['id', 'ctcGalleryRightNavV']
-								],
-								ctcOverlayViewer.applyStyle([
-									['margin-top', navIconMargin + "px"],
-									['font-size', optimizedFontSize + 'px'],
-									['margin-right', document.querySelector('#ctcOverlayDownloadButtonV').offsetWidth + 'px']
-								], document.createElement('span')))));
-						countAndCurrent.innerHTML = (imageNumberToLoad + 1) + ' of ' + totalImageCount;
-					} else if (imageNumberToLoad - 1 >= 0 && imageNumberToLoad + 1 >= totalImageCount) {
-						overlayImgContainer.appendChild(ctcOverlayViewer.addElemClass(['ctcGalleryLeftNavV'],
-							ctcOverlayViewer.setElemAttr([
-									['title', 'Previous Image'],
-									["onclick", "ctcOverlayViewer.loadOverlayImages(" + (imageNumberToLoad - 1) + ");"],
-									['id', 'ctcGalleryLeftNavV']
-								],
-								ctcOverlayViewer.applyStyle([
-									['margin-top', navIconMargin + "px"],
-									['font-size', optimizedFontSize + 'px']
-								], document.createElement('span')))));
-
-
-						document.querySelector("#ctcOverlayCountAndCurrentImageV").innerHTML = (imageNumberToLoad + 1) + ' of ' + totalImageCount;
-
-					}
-
-				} else {
-					let countAndCurrent = document.querySelector("#ctcOverlayCountAndCurrentImageV");
-					if (countAndCurrent !== null) {
-						countAndCurrent.parentNode.removeChild(countAndCurrent);
-					}
-					//set left margin for image container
-					overlayImgContainer.setAttribute('data-v-overlay-img', imageNumberToLoad);
-					let containerMarginLeft = Math.round((screenWidth - optimizedImageWidth) / 2);
-					ctcOverlayViewer.applyStyle([
-						["background-image", "url(" + imageToLoad + ")"],
-						["margin-left", containerMarginLeft + "px"],
-						["margin-top", containerMarginTop + "px"],
-						["width", optimizedImageWidth + "px"],
-						["height", optimizedImageHeight + "px"]
-					], overlayImgContainer);
-					ctcOverlayViewer.applyStyle([
-						["margin-right", containerMarginLeft + "px"],
-						["margin-top", closeMarginTop + "px"]
-					], closeBtn);
-				}
-
-				//load image title	
-				let imgTitle = overlayImg[0].getAttribute("title");
-				let ctcLoadedImgAltTitle = document.querySelector("#ctcLoadedImgAltTitleV");
-
-				if (imgTitle !== null) {
-					ctcLoadedImgAltTitle.innerHTML = imgTitle;
-					ctcLoadedImgAltTitle.style.opacity = "1";
-				} else {
-					ctcLoadedImgAltTitle.style.opacity = "0";
-				}
-			});
-
-
-			document.querySelector('#ctcOverlayDownloadButtonV').setAttribute('data-href', imageToLoad);
-			sideImgGallery.style.opacity = "1";
-
-
-		} //end of function loadoverlay
-
-		//function on arrow keys press and resize
-		onRequiredEventListener() {
-
-			var ctcOverlayContainer = document.getElementById("ctcOverlayV");
-			//when screen resizes
-			window.addEventListener('resize', () => {
-				if (ctcOverlayContainer !== null && ctcOverlayContainer.offsetHeight !== 0) {
-					var overlayImgContainer = document.querySelector("#ctcOverlayImageContainerV");
-					ctcOverlayViewer.loadOverlayImages(overlayImgContainer.getAttribute("data-v-overlay-img"));
-				}
-			});
-
-			//on keypress do stuffs
-			window.addEventListener('keydown', (event) => {
-				if (ctcOverlayContainer.offsetHeight !== 0) {
-					if (event.code === 'ArrowUp' || event.code === 'ArrowLeft') {
-						let overlayImgContainer = document.querySelector("#ctcOverlayImageContainerV");
-						ctcOverlayViewer.loadOverlayImages(parseInt(overlayImgContainer.getAttribute("data-v-overlay-img")) - 1);
-						event.preventDefault();
-					} else if (event.code === 'ArrowDown' || event.code == 'ArrowRight') {
-						let overlayImgContainer = document.querySelector("#ctcOverlayImageContainerV");
-						ctcOverlayViewer.loadOverlayImages(parseInt(overlayImgContainer.getAttribute("data-v-overlay-img")) + 1);
-						event.preventDefault();
-					} else if (event.code == 'Escape') {
-						ctcOverlayViewer.closeOverlay();
-						event.preventDefault();
-					}
-				}
-			});
-
+			this.createToolbar(overlayDiv,gal,imgEl,imgNum);
+			this.scrollToPrev(imgNum);
 		}
 
-	}
+		/*
+		*Scroll loaded image on side bar
+		* 
+		*@param imgNum Number of image on gallery
+		*
+		*/
+		scrollToPrev(imgNum){
+			 Array.from(document.querySelectorAll('.img-preview')).forEach((prev,i)=>{
+
+				if(i === imgNum){
+					prev.scrollIntoView({block: "center"});
+				   prev.style.border=`1px solid rgba(255, 0, 0, 0.8)`;					
+				   
+				}else{
+					prev.style.border=`1px solid rgba(0,0,0,0.8)`;	
+				}
+			 });
+		}
+
+		/*
+		*Adjust element dimension on resize
+		* 
+		*@param e Resize event
+		*
+		*/
+
+		adjustApp(e) {
+				let overlayWidth = window.innerWidth;
+				let overlayHeight = window.innerHeight;
+				let overlayDiv = document.querySelector('#gallery-overlay');
+				
+			
+				if(undefined != overlayDiv ){
+						let closeBtn = overlayDiv.querySelector('#overlay-close-btn');
+						overlayDiv.style.height = `${overlayHeight}px`;
+						overlayDiv.style.width = `${overlayWidth}px`;
+						closeBtn .style.fontSize = `${0.016*overlayWidth}`;
+						let loadedImg = document.querySelector('#loaded-img');
+						let sidebarDiv = document.querySelector('#gal-sidebar');
+						let imgCount =  undefined != sidebarDiv ? 2 :1;
+						let alltImgWidth = undefined != sidebarDiv ? 0.94 : 1;
+						let imgLoading = overlayDiv.querySelector('#image-loading-main');
+							imgLoading.style.left  = `${0.992*overlayWidth/2}`;
+							imgLoading.style.top = `${overlayHeight/2}`;
+							imgLoading.style.fontSize =  `${0.016*overlayWidth}px`
+		
+						let bufferImg = new Image();
+							bufferImg.src = loadedImg.src;		
+						let opImgDim = this.getOptimizedImageSize(overlayWidth, overlayHeight, bufferImg.width, bufferImg.height,imgCount);
+						let imgDisplay =  loadedImg.style.display;	
+							loadedImg.style = `height:${opImgDim.height}px;width:${opImgDim.width}px;display:${imgDisplay};margin:${((overlayHeight- opImgDim.height) / 2)}px ${(((alltImgWidth * overlayWidth) - opImgDim.width) / 2)}px;`;	
+								
+						if(undefined != sidebarDiv){						
+								
+									let sidebarImgs = Array.from(sidebarDiv.querySelectorAll('div'));
+										sidebarDiv.style.height = overlayHeight+'px';
+										sidebarDiv.style.width = (0.04*overlayWidth)+'px';
+										sidebarImgs.map(x => {
+											x.style.height = (0.93*sidebarDiv.offsetWidth)+ 'px';
+											if(undefined != x.querySelector('.img-loading')){
+												x.querySelector('.img-loading').style.fontSize = `${0.6*sidebarDiv.offsetWidth}px`;
+											}
+										});	
+
+										let paddingTop  = (overlayHeight - (sidebarImgs.length * (0.93*sidebarDiv.offsetWidth+2)))/2;
+										sidebarDiv.style.paddingTop = 0 < paddingTop ?  `${paddingTop}px`:'0px';
+
+										let toolbarDiv = overlayDiv.querySelector('#toolbar-div');
+										toolbarDiv.style = `top:${(overlayHeight/2)-(0.066*overlayWidth)}px;float:right;right: 0px;display: inline-block;position: fixed;`;
+										
+										Array.from(toolbarDiv.querySelectorAll('div')).map( x=>{
+											x.style.height = `${0.02*overlayWidth}px`;
+											x.style.width = `${0.02*overlayWidth}px`;
+											x.style.borderRadius = `${0.02*overlayWidth}px`;
+											x.style.marginTop= `${0.002*overlayWidth}px`;
+											x.style.fontSize = `${0.016*overlayWidth}`;
+										});
+
+							}			
+						
+
+					}
+			}
+
+		/*
+		*Destroy overlay viewer
+		* 
+		*Static no parameter
+		*
+		*/
+	
+			closeOverlay() {
+				document.body.removeChild(document.querySelector('#gallery-overlay'));
+				document.body.style.overflow = '';
+				document.body.style.margin = ''
+				document.querySelector('head').removeChild(document.querySelector('#ctc-scroll-css'));
+			}
+
+		/*
+		*Optimize image dimension for viewing 
+		* 
+		*@param screenWidth Window's inner width
+		*@param screenHeight Window's inner height
+		*@param imageActualWidth Original width of image
+		*@param imageActualHeight Original height of image
+		*@param imgCount Toal count of images in gallery
+		*
+		*/	
+		
+		getOptimizedImageSize(screenWidth, screenHeight, imageActualWidth, imageActualHeight,imgCount) {
+		
+				var imageScreenHeightRatio = 0,
+					imageScreenWidthRatio = 0,
+					optimizedImageHeight = 0,
+					optimizedImageWidth = 0;
+				let imgPercent = undefined != imgCount && 1< imgCount ? 0.93:0.955;
+				let  marginPercent = 1-imgPercent;
+				if ((imageActualWidth >= screenWidth) && (imageActualHeight >= screenHeight)) {
+					if (imageActualWidth >= imageActualHeight) {
+						if (imageActualWidth > imageActualHeight) {
+							imageScreenWidthRatio = imageActualWidth / screenWidth;
+							optimizedImageWidth = (imageActualWidth / imageScreenWidthRatio) - (marginPercent * screenWidth);
+							optimizedImageHeight = imageActualHeight * (optimizedImageWidth / imageActualWidth);
+							if (optimizedImageHeight >= (imgPercent * screenHeight)) {
+								imageScreenHeightRatio = screenHeight / imageActualHeight;
+								optimizedImageHeight = imageActualHeight * imageScreenHeightRatio - (marginPercent * screenHeight);
+								optimizedImageWidth = imageActualWidth * (optimizedImageHeight / imageActualHeight);
+							}
+						} else {
+							if (screenWidth > screenHeight) {
+								optimizedImageHeight = (imgPercent * screenHeight);
+								optimizedImageWidth = optimizedImageHeight;
+							} else if (screenHeight > screenWidth) {
+								optimizedImageWidth = (imgPercent * screenWidth);
+								optimizedImageHeight = optimizedImageWidth;
+							} else {
+								imageScreenHeightRatio = screenHeight / imageActualHeight;
+								optimizedImageHeight = imageActualHeight * imageScreenHeightRatio - (marginPercent * screenHeight);
+								optimizedImageWidth = imageActualWidth * (optimizedImageHeight / imageActualHeight);
+							}
+						}
+					} else {
+						imageScreenHeightRatio = imageActualHeight / screenHeight;
+						optimizedImageHeight = (imageActualHeight / imageScreenHeightRatio) - (marginPercent * screenHeight);
+						optimizedImageWidth = imageActualWidth * (optimizedImageHeight / imageActualHeight);
+					}
+		
+				} else if (imageActualWidth >= screenWidth && imageActualHeight < screenHeight) {
+					imageScreenWidthRatio = screenWidth / imageActualWidth;
+					optimizedImageWidth = imageActualWidth * imageScreenWidthRatio - (marginPercent * screenWidth);
+					optimizedImageHeight = imageActualHeight * (optimizedImageWidth / imageActualWidth);
+				} else if (imageActualHeight >= screenHeight && imageActualWidth < screenWidth) {
+					imageScreenHeightRatio = screenHeight / imageActualHeight;
+					optimizedImageHeight = imageActualHeight * imageScreenHeightRatio - (marginPercent * screenHeight);
+					optimizedImageWidth = imageActualWidth * (optimizedImageHeight / imageActualHeight);
+					optimizedImageHeight = imageActualHeight * (optimizedImageWidth / imageActualWidth);
+				} else {
+					var avilableImageWidth = imgPercent * screenWidth;
+					var avilableImageHeight = imgPercent * screenHeight;
+					if (imageActualWidth >= avilableImageWidth && imageActualHeight >= avilableImageHeight) {
+						var imageAvilableWidthRatio = avilableImageWidth / imageActualWidth;
+						imageAvilableHeightRatio = avilableImageHeight / imageActualHeight;
+						optimizedImageWidth = avilableImageWidth * imageAvilableWidthRatio;
+						optimizedImageHeight = screenHeight * imageScreenHeightRatio;
+					} else if (imageActualWidth >= avilableImageWidth && imageActualHeight < avilableImageHeight) {
+						var imageAvilableWidthRatio = avilableImageWidth / imageActualWidth;
+						optimizedImageWidth = imageActualWidth * imageAvilableWidthRatio;
+						optimizedImageHeight = imageActualHeight * (optimizedImageWidth / imageActualWidth);
+					} else if (imageActualHeight >= avilableImageHeight && imageActualWidth < avilableImageWidth) {
+						var imageAvilableHeightRatio = avilableImageHeight / imageActualHeight;
+						optimizedImageHeight = imageActualHeight * imageAvilableHeightRatio;
+						optimizedImageWidth = imageActualWidth * (optimizedImageHeight / imageActualHeight);
+					} else {
+						optimizedImageWidth = imageActualWidth;
+						optimizedImageHeight = imageActualHeight;
+					}
+					optimizedImageHeight = imageActualHeight * (optimizedImageWidth / imageActualWidth);
+				}
+		
+		
+				//at last check it optimized width is still large			
+				if (optimizedImageWidth > (imgPercent * screenWidth)) {
+					optimizedImageWidth = imgPercent * screenWidth;
+					optimizedImageHeight = imageActualHeight * (optimizedImageWidth / imageActualWidth);
+				}
+		
+				return {
+					width: optimizedImageWidth,
+					height: optimizedImageHeight
+				};
+			}
+
+		/*
+		*Handle keystroke event
+		* 
+		*@param e Key stroke event
+		*
+		*/
+
+		onKeyStroke(event){
+				let overlayDiv = document.querySelector('#gallery-overlay');
+					if (undefined != overlayDiv ) {
+								switch(event.code){
+
+									case 'ArrowUp' :
+											document.querySelector('#img-zoom-in').click();
+									break;
+									case 'ArrowDown':
+											document.querySelector('#img-zoom-out').click();
+									break;
+									case 'ArrowLeft' :
+											document.querySelector('#gal-prev-img').click();
+									break;
+									case 'ArrowRight':
+											document.querySelector('#gal-next-img').click()
+									break;
+									case 'Escape':
+										overlayDiv.querySelector('#overlay-close-btn').click();
+									break;
+								}
+						}
+				}
+
+		
+}
