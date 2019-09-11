@@ -30,7 +30,7 @@ Download and include file
 ## Plugin Options 
 
 ```sh
-<p>new ctcOverlayViewer('some-class-selector,some-id-selector');</p>
+new ctcOverlayViewer('some-class-selector,some-id-selector')
 Note: (Selector should be warapper element which contains  gallery of images)
 
 ```
@@ -51,6 +51,14 @@ Contributions, issues and feature requests are welcome. Feel free to check [issu
 ## Show your support
 
 Please ⭐️ this repository if you like it.
+
+<ul>
+<li>
+<a href="https://www.patreon.com/ujw0l">
+  <img src="https://c5.patreon.com/external/logo/become_a_patron_button@2x.png" width="160">
+</a>
+</li>
+</ul>
 
 ## License
 
