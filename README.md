@@ -22,18 +22,17 @@ npm install ctc-gallery-viewer
 ## script tag
 
 ```sh
-Download and include files
-1. ctc_overlay.js
-2. ctc_overlay_style.css
+Download and include file
+ ctc_overlay.js
 ```
 
 
 ## Plugin Options 
 
 ```sh
-onmouseenter="new ctcOverlayViewer(this)";
+new ctcOverlayViewer('some-class-selector,some-id-selector')
+Note: (Selector should be warapper element which contains  gallery of images)
 
-Note: Paste above code inside wrapper element containing images.And watch the magic happens
 ```
 
 
@@ -52,6 +51,14 @@ Contributions, issues and feature requests are welcome. Feel free to check [issu
 ## Show your support
 
 Please ⭐️ this repository if you like it.
+
+<ul>
+<li>
+<a href="https://www.patreon.com/ujw0l">
+  <img src="https://c5.patreon.com/external/logo/become_a_patron_button@2x.png" width="160">
+</a>
+</li>
+</ul>
 
 ## License
 
