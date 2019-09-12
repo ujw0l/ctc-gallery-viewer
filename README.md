@@ -1,6 +1,6 @@
 ﻿<h1 align="center">Welcome to ctc-gallery-viewer 👋</h1>
 <p>
-  <img src="https://img.shields.io/badge/version-1.5.0-blue.svg?cacheSeconds=2592000" />
+  <img src="https://img.shields.io/badge/version-1.5.1-blue.svg?cacheSeconds=2592000" />
   <a href="https://ujw0l.github.io/ctc-gallery-viewer/">
     <img alt="Documentation" src="https://img.shields.io/badge/documentation-yes-brightgreen.svg" target="_blank" />
   </a>

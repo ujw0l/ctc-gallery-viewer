@@ -48,8 +48,8 @@
 
 		createOverlay(img,imgNum, gal,param2) {
 
-				let overlayWidth = window.innerWidth;
-				let overlayHeight = window.innerHeight;
+				let overlayWidth = window.innerWidth+1;
+				let overlayHeight = window.innerHeight+1;
 				let alltImgWidth = 1 < gal.length ? 0.94 : 1;
 				let sideBarWid  = 1 < gal.length ? 0.04 : 0;
 
@@ -325,7 +325,7 @@
 							sidebar.style = `overflow-y:auto;tex-align:center;display:inline-block;width:${0.04*overlayDiv.offsetWidth}px;height:${overlayDiv.offsetHeight}px;float:left;left:0;background-color:rgba(0,0,0,0.1);z-index:105000;`;
 							overlayDiv.appendChild(sidebar);
 					
-							let sidebarImgStyle = ` overflow-x: hidden;border-radius:5%;cursor:pointer;background-color:rgba(255,255,255,1);width:93%;height:${0.93*sidebar.offsetWidth}px;border:1px solid rgba(0,0,0,0.8);background-repeat: no-repeat;background-size:contain;background-position: center;`;
+							let sidebarImgStyle = ` overflow-x: hidden;border-radius:5%;cursor:pointer;background-color:rgba(255,255,255,1);width:93%;height:${0.93*sidebar.offsetWidth}px;border:1px solid rgba(0,0,0,0.8);background-repeat: no-repeat;background-size:contain;background-position: center;text-align:center;color:rgba(0,0,0,1);font-size:${0.6*sidebar.offsetWidth}px;`;
 							gal.map((img,i)=>{
 				
 								let imgPrev = new Image();
@@ -337,30 +337,21 @@
 								sidebarImg.style = sidebarImgStyle;
 								sidebarImg.addEventListener('mouseenter', event=>event.target.style.borderRadius='12%');
 								sidebarImg.addEventListener('mouseleave', event=>event.target.style.borderRadius='5%');
-
-								let rotateDiv = document.createElement('div');
-									rotateDiv.classList.add('img-loading');
-									rotateDiv.style = `text-align:center;color:rgba(0,0,0,1);font-size:${0.6*sidebar.offsetWidth}px;`;
-									rotateDiv.title = 'Loading';
-									rotateDiv.innerHTML = `<b>.</b>`;
-									sidebarImg.appendChild(rotateDiv);
-
+								sidebarImg.innerHTML = `<b>.</b>`;
 								sidebar.appendChild(sidebarImg);
 								let rotateInterval = setInterval( ()=>{
-										let rotateSpan = sidebarImg.querySelector('.img-loading');
-
-										switch(rotateSpan.innerHTML){
+										switch(sidebarImg.innerHTML){
 											case '<b>.</b>':
-												rotateSpan.innerHTML = '<b>.</b>.'
+												sidebarImg.innerHTML = '<b>.</b>.'
 											  break;
 										    case '<b>.</b>.':
-													rotateSpan.innerHTML = '.<b>.</b>.'
+												sidebarImg.innerHTML = '.<b>.</b>.'
 											break;
 											case '.<b>.</b>.':
-													rotateSpan.innerHTML = '...<b>.</b>'
+												sidebarImg.innerHTML = '...<b>.</b>'
 											break;
 											case '...<b>.</b>':
-													rotateSpan.innerHTML = '<b>.</b>'
+												sidebarImg.innerHTML = '<b>.</b>'
 											break;		
 											default:
 										}
@@ -502,11 +493,9 @@
 										sidebarDiv.style.height = overlayHeight+'px';
 										sidebarDiv.style.width = (0.04*overlayWidth)+'px';
 										sidebarDiv.style.paddingTop = 0 < (overlayHeight- (sidebarImgs.length* ((0.93*sidebarDiv.offsetWidth)+2))) / 2 ?  `${(overlayHeight- (sidebarImgs.length* ((0.93*sidebarDiv.offsetWidth)+2))) / 2}px`:'0px';
-										sidebarImgs.map(x => {
-											x.style.height = (0.93*sidebarDiv.offsetWidth)+ 'px';
-											if(undefined != x.querySelector('.img-loading')){
-												x.querySelector('.img-loading').style.fontSize = `${0.6*sidebarDiv.offsetWidth}px`;
-											}
+										sidebarImgs.map(y => {
+											y.style.height = (0.93*sidebarDiv.offsetWidth)+ 'px';
+											y.style.fontSize =`${0.6*sidebarDiv.offsetWidth}px`;
 										});	
 										
 										let toolbarDiv = overlayDiv.querySelector('#toolbar-div');
