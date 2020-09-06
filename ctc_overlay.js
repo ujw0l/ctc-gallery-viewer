@@ -446,7 +446,7 @@ class ctcOverlayViewer {
 				});
 
 				let toolbarDiv = overlayDiv.querySelector('#toolbar-div');
-				toolbarDiv.style = `top:${(overlayHeight / 2) - (0.066 * overlayWidth)}px;float:right;right: 0px;display: inline-block;position: fixed;`;
+				toolbarDiv.style = `top:${(overlayHeight / 2) - (0.077 * overlayWidth)}px;float:right;right: 0px;display: inline-block;position: fixed;`;
 				Array.from(toolbarDiv.querySelectorAll('div')).map(x => {
 					x.style.height = `${0.02 * overlayWidth}px`;
 					x.style.width = `${0.02 * overlayWidth}px`;
