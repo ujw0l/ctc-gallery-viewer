@@ -67,7 +67,7 @@ class ctcOverlayViewer {
 		closeBtn.innerHTML = "&#10539;";
 		closeBtn.style = `cursor:pointer;position:absolute;float:right;right:3px;font-size:${0.016 * overlayWidth}px;color:rgba(255,255,255,1);text-shadow:-1px -1px 1px rgba(0,0,0,1);z-index:200000;`;
 		overlayDivEl.appendChild(closeBtn);
-		closeBtn.addEventListener('click', () => this.closeOverlay());
+		closeBtn.addEventListener('click', () => this.closeOverlay(overlayDivEl));
 
 		let imgLoading = document.createElement('span');
 		imgLoading.id = 'image-loading-main';
@@ -165,7 +165,7 @@ class ctcOverlayViewer {
 
 			let firstImgBtn = document.createElement('div');
 			firstImgBtn.id = 'gal-first-img';
-			firstImgBtn.style = btnStyle + 'transform:rotate(-90deg);line-height:1.2;';
+			firstImgBtn.style = btnStyle + 'transform:rotate(-90deg);';
 			firstImgBtn.innerHTML = '&#8892;';
 			firstImgBtn.title = 'Go to first image';
 			firstImgBtn.addEventListener('click', () => this.loadImg(0, gal, overlayDivEl, imgEl));
@@ -224,7 +224,7 @@ class ctcOverlayViewer {
 
 			let lastImgBtn = document.createElement('div');
 			lastImgBtn.id = 'gal-last-img';
-			lastImgBtn.style = btnStyle + 'transform:rotate(90deg);line-height:1.2;';
+			lastImgBtn.style = btnStyle + 'transform:rotate(90deg);';
 			lastImgBtn.innerHTML = '&#8892;';
 			lastImgBtn.title = 'Go to last image';
 			lastImgBtn.addEventListener('click', () => this.loadImg((gal.length - 1), gal, overlayDivEl, imgEl));
@@ -273,7 +273,7 @@ class ctcOverlayViewer {
 		sidebar.style = `overflow-y:auto;tex-align:center;display:inline-block;width:${0.04 * overlayDiv.offsetWidth}px;height:${overlayDiv.offsetHeight}px;float:left;left:0;background-color:rgba(0,0,0,0.1);z-index:105000;`;
 		overlayDiv.appendChild(sidebar);
 
-		let sidebarImgStyle = ` overflow-x: hidden;cursor:pointer;background-color:rgba(255,255,255,1);width:93%;height:${0.93 * sidebar.offsetWidth}px;border:1px solid rgba(0,0,0,0.8);background-repeat: no-repeat;background-size:contain;background-position: center;text-align:center;color:rgba(0,0,0,1);font-size:${0.6 * sidebar.offsetWidth}px;`;
+		let sidebarImgStyle = `overflow-x: hidden;transition: width 0.5s, height 0.5s;cursor:pointer;background-color:rgba(255,255,255,1);width:93%;height:${0.93 * sidebar.offsetWidth}px;border:1px dotted rgba(0,0,0,0.8);background-repeat: no-repeat;background-size:contain;background-position: center;text-align:center;color:rgba(0,0,0,1);font-size:${0.6 * sidebar.offsetWidth}px;`;
 		gal.map((img, i) => {
 
 			let imgPrev = new Image();
@@ -452,7 +452,7 @@ class ctcOverlayViewer {
 					x.style.width = `${0.02 * overlayWidth}px`;
 					x.style.borderRadius = `${0.02 * overlayWidth}px`;
 					x.style.marginTop = `${0.002 * overlayWidth}px`;
-					x.style.fontSize = `${0.016 * overlayWidth}`;
+					x.style.fontSize = 'gal-slide-show' != x.id ? `${0.016 * overlayWidth}px` : `${0.011 * overlayWidth}px`;
 				});
 
 			}
@@ -468,8 +468,13 @@ class ctcOverlayViewer {
 	*
 	*/
 
-	closeOverlay() {
-		document.body.removeChild(document.querySelector('#gallery-overlay'));
+	closeOverlay(overlayEl) {
+		let slideShowEl = overlayEl.querySelector('#gal-slide-show');
+
+		if (null != slideShowEl && 0 < parseInt(slideShowEl.getAttribute('data-interval-id'))) {
+			clearInterval(parseInt(slideShowEl.getAttribute('data-interval-id')));
+		}
+		document.body.removeChild(overlayEl);
 		document.body.style.overflow = '';
 		document.body.style.margin = ''
 		document.querySelector('head').removeChild(document.querySelector('#ctc-scroll-css'));
