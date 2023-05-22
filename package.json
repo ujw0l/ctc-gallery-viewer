@@ -29,7 +29,7 @@
   "bundleDependencies": false,
   "deprecated": false,
   "description": "Images with gallery viewer written in vanilla js, display image in overlay and gallery on side in vertical carousel",
-  "homepage": "https://ujw0l.github.io/ctc-gallery-viewer/",
+  "homepage": "https://ujw0l.github.io/ctc-gallery-viewer1",
   "keywords": [
     "viewer",
     "gallery",
@@ -48,5 +48,5 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "version": "1.6.0"
+  "version": "1.6.1"
 }

@@ -112,7 +112,7 @@ class ctcOverlayViewer {
 
 		let imgTitleDiv = document.createElement("div");
 		imgTitleDiv.id = "img-title-info";
-		imgTitleDiv.style = `z-index:195000;overflow:scroll;position:fixed;text-align:center;height:${0.02 * overlayHeight}px;width:${opImgDim.width}px;bottom:1px;color:rgba(255,255,255,1);font-size:${0.015 * overlayHeight};overflow:scroll;left:${(sideBarWid * overlayWidth) + (((alltImgWidth * overlayWidth) - opImgDim.width) / 2)}px;`;
+		imgTitleDiv.style = `z-index:195000;overflow:auto;position:fixed;text-align:center;height:${0.02 * overlayHeight}px;width:${opImgDim.width}px;bottom:1px;color:rgba(255,255,255,1);font-size:${0.015 * overlayHeight};overflow:scroll;left:${(sideBarWid * overlayWidth) + (((alltImgWidth * overlayWidth) - opImgDim.width) / 2)}px;`;
 		imgTitleDiv.innerHTML = undefined != img.getAttribute('title') || null != img.getAttribute('title') ? img.getAttribute('title') : '';
 		overlayDivEl.appendChild(imgTitleDiv);
 
