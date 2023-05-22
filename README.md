@@ -1,6 +1,6 @@
 ﻿<h1 align="center">Welcome to ctc-gallery-viewer 👋</h1>
 <p>
-  <img src="https://img.shields.io/badge/version-1.5.1-blue.svg?cacheSeconds=2592000" />
+  <img src="https://img.shields.io/badge/version-1.6.1-blue.svg?cacheSeconds=2592000" />
   <a href="https://ujw0l.github.io/ctc-gallery-viewer/">
     <img alt="Documentation" src="https://img.shields.io/badge/documentation-yes-brightgreen.svg" target="_blank" />
   </a>
@@ -23,11 +23,16 @@ npm install ctc-gallery-viewer
 
 ```sh
 Download and include file
- ctc_overlay.js
+<script type:"text/javascript" src="ctc_overlay.js"></script>
+
+or 
+
+<script type:"text/javascript" src="ctc_overlay.min.js"></script>
+ 
 ```
 
 
-## Plugin Options 
+## Library Options 
 
 ```sh
 new ctcOverlayViewer('some-class-selector,some-id-selector')
@@ -57,6 +62,9 @@ Please ⭐️ this repository if you like it.
 <a href="https://www.patreon.com/ujw0l">
   <img src="https://c5.patreon.com/external/logo/become_a_patron_button@2x.png" width="160">
 </a>
+</li>
+<li>
+<a href="https://www.buymeacoffee.com/ujw0l" title=" Buy me Beer"> 🍺 </a>
 </li>
 </ul>
 
