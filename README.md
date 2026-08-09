@@ -2,6 +2,8 @@
 
 A lightweight, dependency-free image gallery viewer written in vanilla JavaScript. One script provides the complete responsive UI—no separate CSS file is required.
 
+**Homepage and live demo:** [https://ujw0l.github.io/ctc-gallery-viewer1/](https://ujw0l.github.io/ctc-gallery-viewer1/)
+
 ## Features
 
 - Responsive desktop and mobile layouts
@@ -82,7 +84,7 @@ npm run build
 npm test
 ```
 
-Open `demo/index.html` to preview the viewer.
+Open `demo/index.html` locally or visit the [project homepage](https://ujw0l.github.io/ctc-gallery-viewer1/) to preview the viewer.
 
 ## License
 

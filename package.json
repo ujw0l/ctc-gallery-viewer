@@ -1,6 +1,6 @@
 {
   "name": "ctc-gallery-viewer",
-  "version": "1.8.0",
+  "version": "1.8.1",
   "description": "A dependency-free, responsive and accessible image gallery viewer written in vanilla JavaScript",
   "main": "ctc_overlay.js",
   "files": [
@@ -31,7 +31,7 @@
   "bugs": {
     "url": "https://github.com/ujw0l/ctc-gallery-viewer/issues"
   },
-  "homepage": "https://ujw0l.github.io/ctc-gallery-viewer/",
+  "homepage": "https://ujw0l.github.io/ctc-gallery-viewer1/",
   "devDependencies": {
     "terser": "^5.43.1"
   }
