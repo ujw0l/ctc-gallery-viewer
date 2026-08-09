@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>CTC Gallery Viewer demo</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;background:#f4f1eb;color:#171717;font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.page{width:min(1080px,calc(100% - 32px));margin:auto;padding:72px 0 88px}.eyebrow{display:flex;align-items:center;gap:9px;color:#796b54;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}.eyebrow:before{content:"";width:8px;height:8px;border-radius:50%;background:#e69527}h1{max-width:750px;margin:18px 0 12px;font-family:Georgia,serif;font-size:clamp(42px,7vw,78px);font-weight:500;line-height:.96;letter-spacing:-.045em}p{max-width:560px;margin:0 0 38px;color:#625d55;font-size:17px;line-height:1.6}.gallery{display:grid;grid-template-columns:1.35fr 1fr 1fr;grid-template-rows:260px 210px;gap:12px}.gallery img{display:block;width:100%;height:100%;object-fit:cover;border-radius:16px;cursor:pointer;transition:transform .2s,filter .2s}.gallery img:hover{transform:translateY(-3px);filter:brightness(1.04)}.gallery img:first-child{grid-row:1/3}.gallery img:nth-child(4){grid-column:2/4}@media(max-width:680px){.page{padding-top:44px}.gallery{grid-template-columns:1fr 1fr;grid-template-rows:260px 150px 150px}.gallery img:first-child{grid-column:1/3;grid-row:auto}.gallery img:nth-child(4){grid-column:1/3}}
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="eyebrow">Standalone JavaScript gallery</div>
+    <h1>See the whole story.</h1>
+    <p>Select an image to open the redesigned viewer. Try the thumbnail rail, keyboard arrows, zoom, slideshow, and mobile swipe gestures.</p>
+    <div class="gallery" aria-label="Demo gallery">
+      <img alt="Warm desert dunes" title="Golden hour across the quiet dunes" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='900' height='1100'%3E%3Cdefs%3E%3ClinearGradient id='g' x2='0' y2='1'%3E%3Cstop stop-color='%234d6370'/%3E%3Cstop offset='.48' stop-color='%23d99b5c'/%3E%3Cstop offset='1' stop-color='%236b3a27'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='900' height='1100' fill='url(%23g)'/%3E%3Cpath d='M0 720Q250 560 500 730T900 690V1100H0Z' fill='%23d9a15f'/%3E%3Cpath d='M0 850Q320 650 610 850T900 790V1100H0Z' fill='%238c4f31'/%3E%3Ccircle cx='680' cy='260' r='78' fill='%23ffe5a8' opacity='.9'/%3E%3C/svg%3E">
+      <img alt="Blue mountain lake" title="Still water beneath the mountain ridge" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='900' height='600'%3E%3Cdefs%3E%3ClinearGradient id='g' y2='1'%3E%3Cstop stop-color='%238cb2bd'/%3E%3Cstop offset='.62' stop-color='%23395765'/%3E%3Cstop offset='1' stop-color='%23172e38'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='900' height='600' fill='url(%23g)'/%3E%3Cpath d='M0 370L190 160l120 126 130-210 210 270 80-90 170 140v204H0Z' fill='%232f4c58'/%3E%3Cpath d='M0 420h900v180H0z' fill='%231b3c49'/%3E%3Cpath d='M0 420q220 70 450 0t450 0' fill='none' stroke='%2374a3ad' stroke-width='12' opacity='.5'/%3E%3C/svg%3E">
+      <img alt="Abstract green valley" title="Layers of the green valley" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='900' height='600'%3E%3Crect width='900' height='600' fill='%23ced8bf'/%3E%3Cpath d='M0 400Q180 170 390 390T900 330V600H0Z' fill='%237d9970'/%3E%3Cpath d='M0 490Q250 270 500 480T900 430V600H0Z' fill='%234c6e50'/%3E%3Ccircle cx='720' cy='120' r='62' fill='%23f3d795'/%3E%3C/svg%3E">
+      <img alt="Rose sunset over hills" data-caption="The last light beyond the hills" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='600'%3E%3Cdefs%3E%3ClinearGradient id='g' y2='1'%3E%3Cstop stop-color='%23bd7883'/%3E%3Cstop offset='.6' stop-color='%23efb075'/%3E%3Cstop offset='1' stop-color='%236f4353'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='600' fill='url(%23g)'/%3E%3Ccircle cx='820' cy='220' r='80' fill='%23ffe6b4' opacity='.88'/%3E%3Cpath d='M0 430Q210 250 430 430T820 390t380 30v180H0Z' fill='%23593c51'/%3E%3C/svg%3E">
+    </div>
+  </main>
+  <script src="../ctc_overlay.js"></script>
+  <script>new ctcOverlayViewer('.gallery');</script>
+</body>
+</html>

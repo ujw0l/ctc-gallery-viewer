@@ -1,78 +1,89 @@
-﻿<h1 align="center">Welcome to ctc-gallery-viewer 👋</h1>
-<p>
-  <img src="https://img.shields.io/badge/version-1.6.1-blue.svg?cacheSeconds=2592000" />
-  <a href="https://ujw0l.github.io/ctc-gallery-viewer/">
-    <img alt="Documentation" src="https://img.shields.io/badge/documentation-yes-brightgreen.svg" target="_blank" />
-  </a>
-  <a href="https://github.com/ujw0l/ctc-gallery-viewer/graphs/commit-activity">
-    <img alt="Maintenance" src="https://img.shields.io/badge/Maintained%3F-yes-green.svg" target="_blank" />
-  </a>
-  <a href="https://github.com/ujw0l/ctc-gallery-viewer/blob/master/LICENSE">
-    <img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-yellow.svg" target="_blank" />
-  </a>
-</p>
+# ctc-gallery-viewer
 
-> Images with gallery viewer written in vanilla js, display image in overlay and gallery on side in vertical carousel
+A lightweight, dependency-free image gallery viewer written in vanilla JavaScript. One script provides the complete responsive UI—no separate CSS file is required.
+
+## Features
+
+- Responsive desktop and mobile layouts
+- Main image centered precisely in the overlay while preserving its natural aspect ratio
+- Vertically centered desktop thumbnail rail and horizontally centered mobile thumbnail strip
+- Caption and toolbar aligned to the image centerline
+- Keyboard navigation and accessible dialog controls
+- Touch swipe, thumbnail navigation and image preloading
+- Zoom, slideshow, first/last and previous/next controls
+- Captions from `title` or `data-caption`
+- Reduced-motion support and focus management
+- No runtime dependencies
 
 ## Install
 
 ```sh
 npm install ctc-gallery-viewer
 ```
-## script tag
 
-```sh
-Download and include file
-<script type:"text/javascript" src="ctc_overlay.js"></script>
+Or download and include the standalone file:
 
-or 
-
-<script type:"text/javascript" src="ctc_overlay.min.js"></script>
- 
+```html
+<script src="ctc_overlay.min.js"></script>
 ```
 
+## Usage
 
-## Library Options 
+```html
+<div class="my-gallery">
+  <img src="one.jpg" alt="Mountain at sunrise" title="Mountain at sunrise">
+  <img src="two.jpg" alt="Forest trail" data-caption="A quiet forest trail">
+</div>
 
-```sh
-new ctcOverlayViewer('some-class-selector,some-id-selector')
-Note: (Selector should be warapper element which contains  gallery of images)
-
+<script src="ctc_overlay.min.js"></script>
+<script>
+  const viewer = new ctcOverlayViewer('.my-gallery');
+</script>
 ```
 
+The selector can match multiple gallery wrappers. Each gallery is handled independently.
 
+On desktop, thumbnails appear in a vertically centered sidebar. On smaller screens, they automatically switch to a horizontally centered, scrollable strip. The displayed image remains centered in the viewport, with its caption and toolbar centered directly beneath it.
 
-## Contributing
+## Options
 
-Contributions, issues and feature requests are welcome. Feel free to check [issues page](https://github.com/ujw0l/ctc-gallery-viewer/issues) if you want to contribute.
+```js
+const viewer = new ctcOverlayViewer('.my-gallery', {
+  slideshowInterval: 3000,
+  closeOnBackdrop: true,
+  loop: true
+});
+```
 
-## Author
+| Option | Default | Description |
+| --- | --- | --- |
+| `slideshowInterval` | `3000` | Time between slideshow images in milliseconds (minimum 1000) |
+| `closeOnBackdrop` | `true` | Close when the dimmed backdrop is clicked |
+| `loop` | `true` | Wrap around at the first and last images |
 
-👤 **UjW0L**
+## Controls
 
-* Twitter 👉 [@bastakotiujwol](https://twitter.com/bastakotiujwol)
-* Github 👉 [@ujw0l](https://github.com/ujw0l)
+| Input | Action |
+| --- | --- |
+| Left / Right arrow | Previous / next image |
+| Up / Down arrow | Zoom in / out |
+| Home / End | First / last image |
+| Space | Start / pause slideshow |
+| Escape | Close viewer |
+| Swipe | Previous / next image on touch screens |
 
-## Show your support
+The legacy constructor, global class name and control element IDs remain available for compatibility. Call `viewer.destroy()` when removing a viewer from a single-page application.
 
-Please ⭐️ this repository if you like it.
+## Development
 
-<ul>
-<li>
-<a href="https://www.patreon.com/ujw0l">
-  <img src="https://c5.patreon.com/external/logo/become_a_patron_button@2x.png" width="160">
-</a>
-</li>
-<li>
-<a href="https://www.buymeacoffee.com/ujw0l" title=" Buy me Beer"> 🍺 </a>
-</li>
-</ul>
+```sh
+npm install
+npm run build
+npm test
+```
+
+Open `demo/index.html` to preview the viewer.
 
 ## License
 
-Copyright © 2019 [UjW0L](https://github.com/ujw0l).
-
-📜 This project is [MIT](https://github.com/ujw0l/ctc-gallery-viewer/blob/master/LICENSE) licensed.
-
-***
-_This README was generated with ❤️ by [readme-md-generator](https://github.com/kefranabg/readme-md-generator)_
+MIT © UjW0L
